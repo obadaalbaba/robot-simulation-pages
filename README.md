@@ -1,4 +1,4 @@
-# colored_cubes_three_js
+# Robot Visualization
 ## Summary
 This code renders two cubes that interact with each other. The goal of this project is to practice using javascript for 3D animations.
 ## How to Run the Code
