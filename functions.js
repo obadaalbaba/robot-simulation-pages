@@ -68,7 +68,7 @@ function createFrame1(direction, link1, theta1){
     return axesHelper;
 }
 
-function createLink1(frame1, length = 0){
+function createLink(frame1, length = 0){
     const geometry = new THREE.CylinderGeometry( 1, 1, length, 32 );
     const material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
     const cylinder = new THREE.Mesh( geometry, material );
@@ -122,21 +122,6 @@ function createFrame2(joint2, frame1, theta2){
     return axesHelper;
 }
 
-function createLink2(frame2, length = 0){
-    const geometry = new THREE.CylinderGeometry( 1, 1, length, 32 );
-    const material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-    const cylinder = new THREE.Mesh( geometry, material );
-    cylinder.position.x = frame2.position.x;
-    cylinder.position.y = frame2.position.y;
-    cylinder.position.z = frame2.position.z;
-    cylinder.rotation.x = frame2.rotation.x;
-    cylinder.rotation.y = frame2.rotation.y;
-    cylinder.rotation.z = frame2.rotation.z+Math.PI/2;
-    cylinder.translateY(-length/2);
-    cylinder.length = length;
-    return cylinder;
-}
-
 function createTCPframe(link2){
     const axesHelper = new THREE.AxesHelper( 5 );
     axesHelper.position.x = link2.position.x;
@@ -152,33 +137,4 @@ function createTCPframe(link2){
 
 function randomNumber(upperLimmit, lowerLimit) {
     return Math.random() * (upperLimmit - lowerLimit) + lowerLimit;
-}
-
-function vectorMagnitude(vector) {
-    return Math.sqrt(Math.pow(vector[0],2)+Math.pow(vector[1],2)+Math.pow(vector[2],2));
-}
-
-function getRandomTrajectory(initialSpeed) {
-    let randomTrajectory = [randomNumber(1, -1), randomNumber(1, -1), randomNumber(1, -1)];
-    const magnitudeTrajectory = vectorMagnitude(randomTrajectory);
-    return randomTrajectory.map(function(item) {return item*initialSpeed/magnitudeTrajectory});
-}
-
-function joint2Speed(alpha2){
-	frame2.rotateZ(0.01);
-	link2.position.x = frame2.position.x;
-    link2.position.y = frame2.position.y;
-    link2.position.z = frame2.position.z;
-    link2.rotation.x = frame2.rotation.x;
-    link2.rotation.y = frame2.rotation.y;
-	link2.translateY(-length/2);
-	link2.rotateZ(0.01);// = createLink2(frame2, length = link_2_length);
-    TCP.position.x = link2.position.x;
-    TCP.position.y = link2.position.y;
-    TCP.position.z = link2.position.z;
-    TCP.rotation.x = link2.rotation.x;
-    TCP.rotation.y = link2.rotation.y;
-    TCP.rotation.z = link2.rotation.z;
-    TCP.translateY(-link2.length/2);
-	TCP.rotateZ(0.01);
 }
