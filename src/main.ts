@@ -10,15 +10,16 @@ import {
     createJoint1,
     createFrame1,
     createLink,
-    createJoint2,
+    createJoint,
     createFrame2,
-    createTCPframe
+    createTCPframe,
+    type Axis
 } from './functions';
 
 type UserInputs = {
-    link_0_direction: string;
+    link_0_direction: Axis;
     link_0_length: number;
-    joint1_direction: string;
+    joint1_direction: Axis;
     theta1: number;
     link_1_length: number;
     joint2_parallel_to_joint1: boolean;
@@ -74,13 +75,13 @@ scene.add(baseFrame);
 
 let link0 = createLink0(userInputs.link_0_direction, userInputs.link_0_length);
 let joint1 = createJoint1(userInputs.joint1_direction, userInputs.link_0_direction, userInputs.link_0_length);
-let frame1 = createFrame1(joint1.direction!, userInputs.link_0_direction, userInputs.link_0_length, userInputs.theta1);
+let frame1 = createFrame1(userInputs.joint1_direction, userInputs.link_0_direction, userInputs.link_0_length, userInputs.theta1);
 let link1 = createLink(frame1, userInputs.link_1_length);
-let joint2 = createJoint2(link1, userInputs.link_1_length, userInputs.joint2_parallel_to_joint1, joint1);
-let frame2 = createFrame2(joint2, frame1, userInputs.theta2);
+let joint2 = createJoint(link1, userInputs.link_1_length, userInputs.joint2_parallel_to_joint1, userInputs.joint1_direction);
+let frame2 = createFrame2(joint2, userInputs.joint2_parallel_to_joint1, frame1, userInputs.theta2);
 let link2 = createLink(frame2, userInputs.link_2_length);
-let joint3 = createJoint2(link2, userInputs.link_2_length, userInputs.joint3_parallel_to_joint2, joint1);
-let frame3 = createFrame2(joint3, frame2, userInputs.theta3);
+let joint3 = createJoint(link2, userInputs.link_2_length, userInputs.joint3_parallel_to_joint2, userInputs.joint1_direction);
+let frame3 = createFrame2(joint3, userInputs.joint3_parallel_to_joint2, frame2, userInputs.theta3);
 let link3 = createLink(frame3, userInputs.link_3_length);
 let TCP4 = createTCPframe(link3, userInputs.link_3_length);
 
@@ -115,13 +116,13 @@ setInterval(function () {
     removeObjects();
     link0 = createLink0(userInputs.link_0_direction, userInputs.link_0_length);
     joint1 = createJoint1(userInputs.joint1_direction, userInputs.link_0_direction, userInputs.link_0_length);
-    frame1 = createFrame1(joint1.direction!, userInputs.link_0_direction, userInputs.link_0_length, userInputs.theta1);
+    frame1 = createFrame1(userInputs.joint1_direction, userInputs.link_0_direction, userInputs.link_0_length, userInputs.theta1);
     link1 = createLink(frame1, userInputs.link_1_length);
-    joint2 = createJoint2(link1, userInputs.link_1_length, userInputs.joint2_parallel_to_joint1, joint1);
-    frame2 = createFrame2(joint2, frame1, userInputs.theta2);
+    joint2 = createJoint(link1, userInputs.link_1_length, userInputs.joint2_parallel_to_joint1, userInputs.joint1_direction);
+    frame2 = createFrame2(joint2, userInputs.joint2_parallel_to_joint1, frame1, userInputs.theta2);
     link2 = createLink(frame2, userInputs.link_2_length);
-    joint3 = createJoint2(link2, userInputs.link_2_length, userInputs.joint3_parallel_to_joint2, joint1);
-    frame3 = createFrame2(joint3, frame2, userInputs.theta3);
+    joint3 = createJoint(link2, userInputs.link_2_length, userInputs.joint3_parallel_to_joint2, userInputs.joint1_direction);
+    frame3 = createFrame2(joint3, userInputs.joint3_parallel_to_joint2, frame2, userInputs.theta3);
     link3 = createLink(frame3, userInputs.link_3_length);
     TCP4 = createTCPframe(link3, userInputs.link_3_length);
     addObjects();
