@@ -60,21 +60,21 @@ export function createLink0(direction: Axis = 'z', length: number = 0): Cylinder
     return cylinder;
 }
 
-export function createJoint1(direction: string = 'y', link0direction: string, link0length: number): CylinderMesh {
+export function createJoint1(direction: Axis = 'y', link0direction: Axis, link0length: number): CylinderMesh {
     const geometry = new THREE.CylinderGeometry(1.5, 1.5, 3, 32);
     const material = new THREE.MeshBasicMaterial({ color: 0xb30086 });
     const cylinder = new THREE.Mesh(geometry, material);
-    (cylinder.position as any)[link0direction!] = link0length!;
-    (cylinder.rotation as any)[linkOrientation[direction]['axis']] = -linkOrientation[direction]['rotation'];
+    cylinder.position[link0direction] = link0length;
+    cylinder.rotation[linkOrientation[direction]['axis']] = -linkOrientation[direction]['rotation'];
 
     return cylinder;
 }
 
-export function createFrame1(direction: string, link0direction: string, link0length: number, theta1: number): THREE.AxesHelper {
+export function createFrame1(direction: Axis, link0direction: Axis, link0length: number, theta1: number): THREE.AxesHelper {
     const axesHelper = new THREE.AxesHelper(5);
-    (axesHelper.material as THREE.LineBasicMaterial).linewidth = 2;
-    (axesHelper.position as any)[link0direction!] = link0length!;
-    (axesHelper.rotation as any)[frameOrientation[direction]['axis']] = -frameOrientation[direction]['rotation'];
+    axesHelper.material.linewidth = 2;
+    axesHelper.position[link0direction] = link0length;
+    axesHelper.rotation[frameOrientation[direction]['axis']] = -frameOrientation[direction]['rotation'];
     axesHelper.rotation.z = (theta1 * Math.PI) / 180;
 
     return axesHelper;
@@ -122,7 +122,7 @@ export function createJoint(link1: CylinderMesh, link1length: number, align: boo
 export function createFrame2(joint2: CylinderMesh, joint2align: boolean, frame1: THREE.AxesHelper, theta2: number): THREE.AxesHelper {
     const axesHelper = new THREE.AxesHelper(5);
     const rotation = joint2align ? 0 : Math.PI / 2;
-    (axesHelper.material as THREE.LineBasicMaterial).linewidth = 2;
+    axesHelper.material.linewidth = 2;
     axesHelper.position.x = joint2.position.x;
     axesHelper.position.y = joint2.position.y;
     axesHelper.position.z = joint2.position.z;
