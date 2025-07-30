@@ -1,4 +1,3 @@
-// import * as THREE from 'three';
 import * as dat from 'dat.gui';
 import {
     createScene,
@@ -57,8 +56,8 @@ lengthFolder.add(userInputs, 'link_2_length', 0, 20);
 lengthFolder.add(userInputs, 'link_3_length', 0, 20);
 lengthFolder.open();
 const orientationsFolder = gui.addFolder('Orientations');
-orientationsFolder.add(userInputs, 'link_0_direction');
-orientationsFolder.add(userInputs, 'joint1_direction');
+orientationsFolder.add(userInputs, 'link_0_direction', ['x', 'y', 'z']);
+orientationsFolder.add(userInputs, 'joint1_direction', ['x', 'y', 'z']);
 orientationsFolder.add(userInputs, 'joint2_parallel_to_joint1');
 orientationsFolder.add(userInputs, 'joint3_parallel_to_joint2');
 orientationsFolder.open();
@@ -69,21 +68,21 @@ const renderer = createRenderer();
 const camera = createCamera(100, -100);
 const grid = createGrid(100, 20);
 scene.add(grid);
-let controls = createControls(camera, renderer);
+const controls = createControls(camera, renderer);
 const baseFrame = createBaseFrame(4);
 scene.add(baseFrame);
 
 let link0 = createLink0(userInputs.link_0_direction, userInputs.link_0_length);
-let joint1 = createJoint1(userInputs.joint1_direction, link0);
-let frame1 = createFrame1(joint1.direction!, link0, userInputs.theta1);
+let joint1 = createJoint1(userInputs.joint1_direction, userInputs.link_0_direction, userInputs.link_0_length);
+let frame1 = createFrame1(joint1.direction!, userInputs.link_0_direction, userInputs.link_0_length, userInputs.theta1);
 let link1 = createLink(frame1, userInputs.link_1_length);
-let joint2 = createJoint2(link1, userInputs.joint2_parallel_to_joint1, joint1);
+let joint2 = createJoint2(link1, userInputs.link_1_length, userInputs.joint2_parallel_to_joint1, joint1);
 let frame2 = createFrame2(joint2, frame1, userInputs.theta2);
 let link2 = createLink(frame2, userInputs.link_2_length);
-let joint3 = createJoint2(link2, userInputs.joint3_parallel_to_joint2, joint1);
+let joint3 = createJoint2(link2, userInputs.link_2_length, userInputs.joint3_parallel_to_joint2, joint1);
 let frame3 = createFrame2(joint3, frame2, userInputs.theta3);
 let link3 = createLink(frame3, userInputs.link_3_length);
-let TCP4 = createTCPframe(link3);
+let TCP4 = createTCPframe(link3, userInputs.link_3_length);
 
 // function divide(matrix1: THREE.Matrix4, matrix2: THREE.Matrix4): THREE.Matrix4 {
 //     const inverse = new THREE.Matrix4();
@@ -115,16 +114,16 @@ addObjects();
 setInterval(function () {
     removeObjects();
     link0 = createLink0(userInputs.link_0_direction, userInputs.link_0_length);
-    joint1 = createJoint1(userInputs.joint1_direction, link0);
-    frame1 = createFrame1(joint1.direction!, link0, userInputs.theta1);
+    joint1 = createJoint1(userInputs.joint1_direction, userInputs.link_0_direction, userInputs.link_0_length);
+    frame1 = createFrame1(joint1.direction!, userInputs.link_0_direction, userInputs.link_0_length, userInputs.theta1);
     link1 = createLink(frame1, userInputs.link_1_length);
-    joint2 = createJoint2(link1, userInputs.joint2_parallel_to_joint1, joint1);
+    joint2 = createJoint2(link1, userInputs.link_1_length, userInputs.joint2_parallel_to_joint1, joint1);
     frame2 = createFrame2(joint2, frame1, userInputs.theta2);
     link2 = createLink(frame2, userInputs.link_2_length);
-    joint3 = createJoint2(link2, userInputs.joint3_parallel_to_joint2, joint1);
+    joint3 = createJoint2(link2, userInputs.link_2_length, userInputs.joint3_parallel_to_joint2, joint1);
     frame3 = createFrame2(joint3, frame2, userInputs.theta3);
     link3 = createLink(frame3, userInputs.link_3_length);
-    TCP4 = createTCPframe(link3);
+    TCP4 = createTCPframe(link3, userInputs.link_3_length);
     addObjects();
 }, 120);
 
