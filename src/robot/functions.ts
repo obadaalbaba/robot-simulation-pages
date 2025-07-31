@@ -7,9 +7,11 @@ export function createLinkOrigin(direction: Axis, parent: THREE.Object3D): THREE
     
     // Orient the origin frame based on the specified direction
     if (direction === 'x') {
-        axesHelper.rotateY(Math.PI / 2); // Rotate so z-axis points along x
+        axesHelper.rotateZ(-Math.PI / 2); // Rotate so y-axis points along x
     } else if (direction === 'y') {
-        axesHelper.rotateX(-Math.PI / 2);
+        // No rotation needed - y-axis already points along y
+    } else if (direction === 'z') {
+        axesHelper.rotateX(Math.PI / 2); // Rotate so y-axis points along z
     }
     
     parent.add(axesHelper);
@@ -21,9 +23,9 @@ export function createLink(length: number = 0, parent: THREE.Object3D): Cylinder
     const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
     const cylinder = new THREE.Mesh(geometry, material);
     
-    // Always align with z-axis of parent origin (cylinder's default is along y-axis)
-    cylinder.rotation.x = Math.PI / 2;
-    cylinder.position.z = length / 2; // Position so link starts at origin
+    // Always align with y-axis of parent origin (cylinder's default is already along y-axis)
+    // No rotation needed - cylinder default orientation is along y-axis
+    cylinder.position.y = length / 2; // Position so link starts at origin
     
     parent.add(cylinder);
     return cylinder;
@@ -33,8 +35,8 @@ export function createLinkEndFrame(length: number, parent: THREE.Object3D): THRE
     const axesHelper = new THREE.AxesHelper(3);
     axesHelper.material.linewidth = 1;
     
-    // Position at the end of the link (along z-axis)
-    axesHelper.position.z = length;
+    // Position at the end of the link (along y-axis)
+    axesHelper.position.y = length;
     
     parent.add(axesHelper);
     return axesHelper;
