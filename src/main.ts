@@ -21,12 +21,15 @@ type UserInputs = {
     link_0_length: number;
     joint1_direction: Axis;
     theta1: number;
+    link_1_direction: Axis;
     link_1_length: number;
     joint2_direction: Axis;
     theta2: number;
+    link_2_direction: Axis;
     link_2_length: number;
     joint3_direction: Axis;
     theta3: number;
+    link_3_direction: Axis;
     link_3_length: number;
 };
 
@@ -35,12 +38,15 @@ const userInputs: UserInputs = {
     link_0_length: 10,
     joint1_direction: 'z',
     theta1: 120,
+    link_1_direction: 'z',
     link_1_length: 10,
     joint2_direction: 'z',
     theta2: 120,
+    link_2_direction: 'z',
     link_2_length: 10,
     joint3_direction: 'z',
     theta3: 45,
+    link_3_direction: 'z',
     link_3_length: 10,
 };
 
@@ -59,8 +65,11 @@ lengthFolder.open();
 const orientationsFolder = gui.addFolder('Orientations');
 orientationsFolder.add(userInputs, 'link_0_direction', ['x', 'y', 'z']);
 orientationsFolder.add(userInputs, 'joint1_direction', ['x', 'y', 'z']);
+orientationsFolder.add(userInputs, 'link_1_direction', ['x', 'y', 'z']);
 orientationsFolder.add(userInputs, 'joint2_direction', ['x', 'y', 'z']);
+orientationsFolder.add(userInputs, 'link_2_direction', ['x', 'y', 'z']);
 orientationsFolder.add(userInputs, 'joint3_direction', ['x', 'y', 'z']);
+orientationsFolder.add(userInputs, 'link_3_direction', ['x', 'y', 'z']);
 orientationsFolder.open();
 
 //this file depends on constants and functions defined in the other files: constants.js & functions.js
@@ -80,21 +89,21 @@ let link0origin = createLinkOrigin(userInputs.link_0_direction, baseFrame);
 let link0 = createLink(userInputs.link_0_length, link0origin);
 let link0end = createLinkEndFrame(userInputs.link_0_length, link0origin);
 let joint1 = createJoint(link0end);
-let joint1frame = createJointFrame(userInputs.theta1, userInputs.joint1_direction, joint1);
+let joint1frame = createJointFrame(userInputs.theta1, userInputs.joint1_direction, link0end);
 
-let link1origin = createLinkOrigin(userInputs.joint1_direction, joint1frame);
+let link1origin = createLinkOrigin(userInputs.link_1_direction, joint1frame);
 let link1 = createLink(userInputs.link_1_length, link1origin);
 let link1end = createLinkEndFrame(userInputs.link_1_length, link1origin);
 let joint2 = createJoint(link1end);
-let joint2frame = createJointFrame(userInputs.theta2, userInputs.joint2_direction, joint2);
+let joint2frame = createJointFrame(userInputs.theta2, userInputs.joint2_direction, link1end);
 
-let link2origin = createLinkOrigin(userInputs.joint2_direction, joint2frame);
+let link2origin = createLinkOrigin(userInputs.link_2_direction, joint2frame);
 let link2 = createLink(userInputs.link_2_length, link2origin);
 let link2end = createLinkEndFrame(userInputs.link_2_length, link2origin);
 let joint3 = createJoint(link2end);
-let joint3frame = createJointFrame(userInputs.theta3, userInputs.joint3_direction, joint3);
+let joint3frame = createJointFrame(userInputs.theta3, userInputs.joint3_direction, link2end);
 
-let link3origin = createLinkOrigin(userInputs.joint3_direction, joint3frame);
+let link3origin = createLinkOrigin(userInputs.link_3_direction, joint3frame);
 let link3 = createLink(userInputs.link_3_length, link3origin);
 let link3end = createLinkEndFrame(userInputs.link_3_length, link3origin);
 let TCP4 = createTCPframe(0, link3end); // TCP at the end of link3
@@ -106,10 +115,13 @@ let previousParams = {
     link_0_direction: userInputs.link_0_direction,
     link_0_length: userInputs.link_0_length,
     joint1_direction: userInputs.joint1_direction,
+    link_1_direction: userInputs.link_1_direction,
     link_1_length: userInputs.link_1_length,
     joint2_direction: userInputs.joint2_direction,
+    link_2_direction: userInputs.link_2_direction,
     link_2_length: userInputs.link_2_length,
     joint3_direction: userInputs.joint3_direction,
+    link_3_direction: userInputs.link_3_direction,
     link_3_length: userInputs.link_3_length,
 };
 
@@ -126,10 +138,13 @@ function updateRobot() {
         previousParams.link_0_direction !== userInputs.link_0_direction ||
         previousParams.link_0_length !== userInputs.link_0_length ||
         previousParams.joint1_direction !== userInputs.joint1_direction ||
+        previousParams.link_1_direction !== userInputs.link_1_direction ||
         previousParams.link_1_length !== userInputs.link_1_length ||
         previousParams.joint2_direction !== userInputs.joint2_direction ||
+        previousParams.link_2_direction !== userInputs.link_2_direction ||
         previousParams.link_2_length !== userInputs.link_2_length ||
         previousParams.joint3_direction !== userInputs.joint3_direction ||
+        previousParams.link_3_direction !== userInputs.link_3_direction ||
         previousParams.link_3_length !== userInputs.link_3_length;
 
     if (structuralChanged) {
@@ -143,19 +158,19 @@ function updateRobot() {
         joint1 = createJoint(link0end);
         joint1frame = createJointFrame(userInputs.theta1, userInputs.joint1_direction, joint1);
 
-        link1origin = createLinkOrigin(userInputs.joint1_direction, joint1frame);
+        link1origin = createLinkOrigin(userInputs.link_1_direction, joint1frame);
         link1 = createLink(userInputs.link_1_length, link1origin);
         link1end = createLinkEndFrame(userInputs.link_1_length, link1origin);
         joint2 = createJoint(link1end);
         joint2frame = createJointFrame(userInputs.theta2, userInputs.joint2_direction, joint2);
 
-        link2origin = createLinkOrigin(userInputs.joint2_direction, joint2frame);
+        link2origin = createLinkOrigin(userInputs.link_2_direction, joint2frame);
         link2 = createLink(userInputs.link_2_length, link2origin);
         link2end = createLinkEndFrame(userInputs.link_2_length, link2origin);
         joint3 = createJoint(link2end);
         joint3frame = createJointFrame(userInputs.theta3, userInputs.joint3_direction, joint3);
 
-        link3origin = createLinkOrigin(userInputs.joint3_direction, joint3frame);
+        link3origin = createLinkOrigin(userInputs.link_3_direction, joint3frame);
         link3 = createLink(userInputs.link_3_length, link3origin);
         link3end = createLinkEndFrame(userInputs.link_3_length, link3origin);
         TCP4 = createTCPframe(0, link3end);
@@ -165,10 +180,13 @@ function updateRobot() {
             link_0_direction: userInputs.link_0_direction,
             link_0_length: userInputs.link_0_length,
             joint1_direction: userInputs.joint1_direction,
+            link_1_direction: userInputs.link_1_direction,
             link_1_length: userInputs.link_1_length,
             joint2_direction: userInputs.joint2_direction,
+            link_2_direction: userInputs.link_2_direction,
             link_2_length: userInputs.link_2_length,
             joint3_direction: userInputs.joint3_direction,
+            link_3_direction: userInputs.link_3_direction,
             link_3_length: userInputs.link_3_length,
         };
     }

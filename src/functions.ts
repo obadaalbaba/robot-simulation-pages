@@ -95,7 +95,7 @@ export function createJoint(parent: THREE.Object3D): CylinderMesh {
     
     // Joint is positioned at the origin of its parent frame
     // Orient along z-axis (same as links)
-    cylinder.rotation.x = Math.PI / 2;
+    // cylinder.rotation.x = Math.PI / 2;
     
     parent.add(cylinder);
     return cylinder;
