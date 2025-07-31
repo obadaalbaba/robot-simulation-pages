@@ -8,15 +8,10 @@ const sceneManager = new SceneManager();
 const inputManager = new UserInputManager();
 const robotBuilder = new RobotBuilder(sceneManager.getWorldReferenceFrame());
 
-try {
-    // Build initial robot
-    const userInputs = inputManager.getUserInputs();
-    robotBuilder.buildRobot(userInputs);
-} catch (error) {
-    console.error('Failed to initialize application:', error);
-    // Display user-friendly error message
-    throw error;
-}
+// Build initial robot
+const userInputs = inputManager.getUserInputs();
+robotBuilder.buildRobot(userInputs);
+
 // Set up input monitoring callbacks
 inputManager.onStructuralChange((params) => {
     robotBuilder.rebuildRobot(params);
