@@ -13,14 +13,14 @@ import { SceneManager } from './scene';
 
 // Initialize scene manager
 const sceneManager = new SceneManager();
-const baseFrame = sceneManager.getBaseFrame();
+const worldReferenceFrame = sceneManager.getWorldReferenceFrame();
 
 // Initialize user input manager
 const inputManager = new UserInputManager();
 const userInputs = inputManager.getUserInputs();
 
 // Build robot structure
-let link0origin = createLinkOrigin(userInputs.link_0_direction, baseFrame);
+let link0origin = createLinkOrigin(userInputs.link_0_direction, worldReferenceFrame);
 createLink(userInputs.link_0_length, link0origin);
 let link0end = createLinkEndFrame(userInputs.link_0_length, link0origin);
 let joint1frame = createJointFrame(userInputs.theta1, userInputs.joint1_direction, link0end);
@@ -70,10 +70,10 @@ function updateJointAngles(params: typeof userInputs) {
 // Rebuild robot structure when structural parameters change
 function rebuildRobot(params: typeof userInputs) {
     // Remove current hierarchy
-    baseFrame.remove(link0origin);
+    worldReferenceFrame.remove(link0origin);
     
     // Rebuild hierarchy with new parameters
-    link0origin = createLinkOrigin(params.link_0_direction, baseFrame);
+    link0origin = createLinkOrigin(params.link_0_direction, worldReferenceFrame);
     createLink(params.link_0_length, link0origin);
     link0end = createLinkEndFrame(params.link_0_length, link0origin);
     joint1frame = createJointFrame(params.theta1, params.joint1_direction, link0end);

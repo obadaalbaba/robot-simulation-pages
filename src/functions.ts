@@ -41,7 +41,7 @@ export function createControls(camera: THREE.Camera, renderer: THREE.WebGLRender
     return controls;
 }
 
-export function createBaseFrame(arrowThickness: number = 4): THREE.AxesHelper {
+export function createReferenceFrame(arrowThickness: number = 4): THREE.AxesHelper {
     const axesHelper = new THREE.AxesHelper(5);
     axesHelper.material.linewidth = arrowThickness;
     return axesHelper;

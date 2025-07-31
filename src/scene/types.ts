@@ -12,7 +12,7 @@ export interface SceneConfig {
         size: number;
         divisions: number;
     };
-    baseFrame: {
+    worldReferenceFrame: {
         size: number;
     };
 }
@@ -23,5 +23,5 @@ export interface SceneComponents {
     camera: THREE.PerspectiveCamera;
     controls: OrbitControls;
     grid: THREE.GridHelper;
-    baseFrame: THREE.AxesHelper;
+    worldReferenceFrame: THREE.AxesHelper;
 }

@@ -5,7 +5,7 @@ import {
     createCamera,
     createGrid,
     createControls,
-    createBaseFrame,
+    createReferenceFrame,
 } from '../functions';
 import { SceneConfig, SceneComponents } from './types';
 import { defaultSceneConfig } from './config';
@@ -34,11 +34,11 @@ export class SceneManager {
         
         // Create scene objects
         const grid = createGrid(this.config.grid.size, this.config.grid.divisions);
-        const baseFrame = createBaseFrame(this.config.baseFrame.size);
+        const worldReferenceFrame = createReferenceFrame(this.config.worldReferenceFrame.size);
         
         // Add objects to scene
         scene.add(grid);
-        scene.add(baseFrame);
+        scene.add(worldReferenceFrame);
 
         return {
             scene,
@@ -46,7 +46,7 @@ export class SceneManager {
             camera,
             controls,
             grid,
-            baseFrame,
+            worldReferenceFrame,
         };
     }
 
@@ -66,8 +66,8 @@ export class SceneManager {
         return this.components.controls;
     }
 
-    public getBaseFrame(): THREE.AxesHelper {
-        return this.components.baseFrame;
+    public getWorldReferenceFrame(): THREE.AxesHelper {
+        return this.components.worldReferenceFrame;
     }
 
     public getAllComponents(): SceneComponents {

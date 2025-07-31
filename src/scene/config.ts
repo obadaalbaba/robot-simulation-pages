@@ -11,7 +11,7 @@ export const defaultSceneConfig: SceneConfig = {
         size: 100,
         divisions: 20,
     },
-    baseFrame: {
+    worldReferenceFrame: {
         size: 4,
     },
 };
