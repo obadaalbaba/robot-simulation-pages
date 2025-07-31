@@ -4,14 +4,14 @@ import { RobotBuilder } from './robot';
 
 // Initialize scene manager
 const sceneManager = new SceneManager();
-const baseFrame = sceneManager.getBaseFrame();
+const worldReferenceFrame = sceneManager.getWorldReferenceFrame();
 
 // Initialize user input manager
 const inputManager = new UserInputManager();
 const userInputs = inputManager.getUserInputs();
 
 // Initialize robot builder and build initial robot
-const robotBuilder = new RobotBuilder(baseFrame);
+const robotBuilder = new RobotBuilder(worldReferenceFrame);
 robotBuilder.buildRobot(userInputs);
 
 // Set up input monitoring callbacks

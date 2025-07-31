@@ -13,10 +13,10 @@ import { RobotComponents } from './types';
 
 export class RobotBuilder {
     private components: RobotComponents | null = null;
-    private baseFrame: THREE.Object3D;
+    private worldReferenceFrame: THREE.Object3D;
 
-    constructor(baseFrame: THREE.Object3D) {
-        this.baseFrame = baseFrame;
+    constructor(worldReferenceFrame: THREE.Object3D) {
+        this.worldReferenceFrame = worldReferenceFrame;
     }
 
     public buildRobot(userInputs: UserInputs): RobotComponents {
@@ -57,15 +57,15 @@ export class RobotBuilder {
 
     public destroyRobot(): void {
         if (this.components) {
-            // Remove the robot hierarchy from the base frame
-            this.baseFrame.remove(this.components.link0origin);
+            // Remove the robot hierarchy from the world reference frame
+            this.worldReferenceFrame.remove(this.components.link0origin);
             this.components = null;
         }
     }
 
     private constructRobotStructure(userInputs: UserInputs): RobotComponents {
-        // Link 0 (base link)
-        const link0origin = createLinkOrigin(userInputs.link_0_direction, this.baseFrame);
+        // Link 0 (base link) - attached to world reference frame
+        const link0origin = createLinkOrigin(userInputs.link_0_direction, this.worldReferenceFrame);
         createLink(userInputs.link_0_length, link0origin);
         const link0end = createLinkEndFrame(userInputs.link_0_length, link0origin);
         
