@@ -1,6 +1,18 @@
 import * as THREE from 'three';
 import { type Axis, type CylinderMesh } from '../shared/types';
 
+/**
+ * COORDINATE SYSTEM ASSUMPTION:
+ * This module assumes Y-AXIS DOMINANCE for all robot components:
+ * - Link origins align their Y-axis with the specified direction
+ * - Links extend along the Y-axis of their parent frame
+ * - Link end frames are positioned along the Y-axis
+ * 
+ * POTENTIAL FLAW: This assumption may not be consistent throughout the entire
+ * codebase. Other modules (joints, scene, etc.) might still assume Z-axis
+ * dominance, creating coordinate system inconsistencies.
+ */
+
 export function createLinkOrigin(direction: Axis, parent: THREE.Object3D): THREE.AxesHelper {
     const axesHelper = new THREE.AxesHelper(3);
     axesHelper.material.linewidth = 1;
@@ -48,7 +60,7 @@ export function createJoint(parent: THREE.Object3D, direction: Axis): CylinderMe
     const cylinder = new THREE.Mesh(geometry, material);
     
     // Joint is positioned at the origin of its parent frame
-    // Orient along z-axis (same as links)
+    // Aligns the y-axis of the joint with the direction of the joint
     if (direction === 'x') {
         cylinder.rotation.z= Math.PI / 2;
     } else if (direction === 'y') {
