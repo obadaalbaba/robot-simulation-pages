@@ -1,4 +1,3 @@
-import * as dat from 'dat.gui';
 import * as THREE from 'three';
 import {
     createScene,
@@ -15,63 +14,11 @@ import {
     createTCPframe,
     type Axis
 } from './functions';
+import { UserInputManager } from './user-inputs';
 
-type UserInputs = {
-    link_0_direction: Axis;
-    link_0_length: number;
-    joint1_direction: Axis;
-    theta1: number;
-    link_1_direction: Axis;
-    link_1_length: number;
-    joint2_direction: Axis;
-    theta2: number;
-    link_2_direction: Axis;
-    link_2_length: number;
-    joint3_direction: Axis;
-    theta3: number;
-    link_3_direction: Axis;
-    link_3_length: number;
-};
-
-const userInputs: UserInputs = {
-    link_0_direction: 'z',
-    link_0_length: 10,
-    joint1_direction: 'y',
-    theta1: 290,
-    link_1_direction: 'x',
-    link_1_length: 10,
-    joint2_direction: 'z',
-    theta2: 80,
-    link_2_direction: 'y',
-    link_2_length: 10,
-    joint3_direction: 'x',
-    theta3: 45,
-    link_3_direction: 'y',
-    link_3_length: 10,
-};
-
-// GUI
-const gui = new dat.GUI();
-const anglesFolder = gui.addFolder('Angles');
-anglesFolder.add(userInputs, 'theta1', 0, 360);
-anglesFolder.add(userInputs, 'theta2', -180, 180);
-anglesFolder.add(userInputs, 'theta3', -180, 180);
-anglesFolder.open();
-const lengthFolder = gui.addFolder('Lengths');
-lengthFolder.add(userInputs, 'link_0_length', 0, 20);
-lengthFolder.add(userInputs, 'link_1_length', 0, 20);
-lengthFolder.add(userInputs, 'link_2_length', 0, 20);
-lengthFolder.add(userInputs, 'link_3_length', 0, 20);
-lengthFolder.open();
-const orientationsFolder = gui.addFolder('Orientations');
-orientationsFolder.add(userInputs, 'link_0_direction', ['x', 'y', 'z']);
-orientationsFolder.add(userInputs, 'joint1_direction', ['x', 'y', 'z']);
-orientationsFolder.add(userInputs, 'link_1_direction', ['x', 'y', 'z']);
-orientationsFolder.add(userInputs, 'joint2_direction', ['x', 'y', 'z']);
-orientationsFolder.add(userInputs, 'link_2_direction', ['x', 'y', 'z']);
-orientationsFolder.add(userInputs, 'joint3_direction', ['x', 'y', 'z']);
-orientationsFolder.add(userInputs, 'link_3_direction', ['x', 'y', 'z']);
-orientationsFolder.open();
+// Initialize user input manager
+const inputManager = new UserInputManager();
+const userInputs = inputManager.getUserInputs();
 
 //this file depends on constants and functions defined in the other files: constants.js & functions.js
 const scene = createScene(0x808080);
@@ -85,112 +32,91 @@ scene.add(baseFrame);
 
 // Build robot structure
 let link0origin = createLinkOrigin(userInputs.link_0_direction, baseFrame);
-let link0 = createLink(userInputs.link_0_length, link0origin);
+createLink(userInputs.link_0_length, link0origin);
 let link0end = createLinkEndFrame(userInputs.link_0_length, link0origin);
 let joint1frame = createJointFrame(userInputs.theta1, userInputs.joint1_direction, link0end);
-let joint1 = createJoint(link0end, userInputs.joint1_direction);
+createJoint(link0end, userInputs.joint1_direction);
 
 let link1origin = createLinkOrigin(userInputs.link_1_direction, joint1frame);
-let link1 = createLink(userInputs.link_1_length, link1origin);
+createLink(userInputs.link_1_length, link1origin);
 let link1end = createLinkEndFrame(userInputs.link_1_length, link1origin);
 let joint2frame = createJointFrame(userInputs.theta2, userInputs.joint2_direction, link1end);
-let joint2 = createJoint(link1end, userInputs.joint2_direction);
+createJoint(link1end, userInputs.joint2_direction);
 
 let link2origin = createLinkOrigin(userInputs.link_2_direction, joint2frame);
-let link2 = createLink(userInputs.link_2_length, link2origin);
+createLink(userInputs.link_2_length, link2origin);
 let link2end = createLinkEndFrame(userInputs.link_2_length, link2origin);
 let joint3frame = createJointFrame(userInputs.theta3, userInputs.joint3_direction, link2end);
-let joint3 = createJoint(link2end, userInputs.joint3_direction);
+createJoint(link2end, userInputs.joint3_direction);
 
 let link3origin = createLinkOrigin(userInputs.link_3_direction, joint3frame);
-let link3 = createLink(userInputs.link_3_length, link3origin);
+createLink(userInputs.link_3_length, link3origin);
 let link3end = createLinkEndFrame(userInputs.link_3_length, link3origin);
 let TCP4 = createTCPframe(0, link3end); // TCP at the end of link3
 
 console.log('TCP Matrix', TCP4.matrix);
 
-// Store previous structural parameters to detect changes
-let previousParams = {
-    link_0_direction: userInputs.link_0_direction,
-    link_0_length: userInputs.link_0_length,
-    joint1_direction: userInputs.joint1_direction,
-    link_1_direction: userInputs.link_1_direction,
-    link_1_length: userInputs.link_1_length,
-    joint2_direction: userInputs.joint2_direction,
-    link_2_direction: userInputs.link_2_direction,
-    link_2_length: userInputs.link_2_length,
-    joint3_direction: userInputs.joint3_direction,
-    link_3_direction: userInputs.link_3_direction,
-    link_3_length: userInputs.link_3_length,
-};
+// Set up input monitoring callbacks
+inputManager.onStructuralChange((params) => {
+    rebuildRobot(params);
+});
 
-// Update robot parameters periodically
-function updateRobot() {
-    // Update joint angles
-    updateJointRotation(joint1frame, userInputs.theta1, userInputs.joint1_direction);
-    updateJointRotation(joint2frame, userInputs.theta2, userInputs.joint2_direction);
-    updateJointRotation(joint3frame, userInputs.theta3, userInputs.joint3_direction);
-    
-    // Check if any structural parameters changed (i.e. if the robot has been re-built)
-    const structuralChanged = 
-        previousParams.link_0_direction !== userInputs.link_0_direction ||
-        previousParams.link_0_length !== userInputs.link_0_length ||
-        previousParams.joint1_direction !== userInputs.joint1_direction ||
-        previousParams.link_1_direction !== userInputs.link_1_direction ||
-        previousParams.link_1_length !== userInputs.link_1_length ||
-        previousParams.joint2_direction !== userInputs.joint2_direction ||
-        previousParams.link_2_direction !== userInputs.link_2_direction ||
-        previousParams.link_2_length !== userInputs.link_2_length ||
-        previousParams.joint3_direction !== userInputs.joint3_direction ||
-        previousParams.link_3_direction !== userInputs.link_3_direction ||
-        previousParams.link_3_length !== userInputs.link_3_length;
+inputManager.onJointUpdate((params) => {
+    updateJointAngles(params);
+});
 
-    if (structuralChanged) {
-        // Remove current hierarchy
-        baseFrame.remove(link0origin);
-        
-        // Rebuild hierarchy with new parameters
-        link0origin = createLinkOrigin(userInputs.link_0_direction, baseFrame);
-        link0 = createLink(userInputs.link_0_length, link0origin);
-        link0end = createLinkEndFrame(userInputs.link_0_length, link0origin);
-        joint1frame = createJointFrame(userInputs.theta1, userInputs.joint1_direction, link0end);
-        joint1 = createJoint(link0end, userInputs.joint1_direction);
+// Start monitoring user inputs
+inputManager.startMonitoring(120);
 
-        link1origin = createLinkOrigin(userInputs.link_1_direction, joint1frame);
-        link1 = createLink(userInputs.link_1_length, link1origin);
-        link1end = createLinkEndFrame(userInputs.link_1_length, link1origin);
-        joint2frame = createJointFrame(userInputs.theta2, userInputs.joint2_direction, link1end);
-        joint2 = createJoint(link1end, userInputs.joint2_direction);
+//Animate
+animate();
 
-        link2origin = createLinkOrigin(userInputs.link_2_direction, joint2frame);
-        link2 = createLink(userInputs.link_2_length, link2origin);
-        link2end = createLinkEndFrame(userInputs.link_2_length, link2origin);
-        joint3frame = createJointFrame(userInputs.theta3, userInputs.joint3_direction, link2end);
-        joint3 = createJoint(link2end, userInputs.joint3_direction);
-
-        link3origin = createLinkOrigin(userInputs.link_3_direction, joint3frame);
-        link3 = createLink(userInputs.link_3_length, link3origin);
-        link3end = createLinkEndFrame(userInputs.link_3_length, link3origin);
-        TCP4 = createTCPframe(0, link3end);
-
-        // Update stored parameters
-        previousParams = {
-            link_0_direction: userInputs.link_0_direction,
-            link_0_length: userInputs.link_0_length,
-            joint1_direction: userInputs.joint1_direction,
-            link_1_direction: userInputs.link_1_direction,
-            link_1_length: userInputs.link_1_length,
-            joint2_direction: userInputs.joint2_direction,
-            link_2_direction: userInputs.link_2_direction,
-            link_2_length: userInputs.link_2_length,
-            joint3_direction: userInputs.joint3_direction,
-            link_3_direction: userInputs.link_3_direction,
-            link_3_length: userInputs.link_3_length,
-        };
-    }
+function animate() {
+    requestAnimationFrame(animate);
+    // required if controls.enableDamping or controls.autoRotate are set to true
+    controls.update();
+    renderer.render(scene, camera);
 }
 
-// Helper function to update joint rotation based on direction
+// Update joint angles only
+function updateJointAngles(params: typeof userInputs) {
+    updateJointRotation(joint1frame, params.theta1, params.joint1_direction);
+    updateJointRotation(joint2frame, params.theta2, params.joint2_direction);
+    updateJointRotation(joint3frame, params.theta3, params.joint3_direction);
+}
+
+// Rebuild robot structure when structural parameters change
+function rebuildRobot(params: typeof userInputs) {
+    // Remove current hierarchy
+    baseFrame.remove(link0origin);
+    
+    // Rebuild hierarchy with new parameters
+    link0origin = createLinkOrigin(params.link_0_direction, baseFrame);
+    createLink(params.link_0_length, link0origin);
+    link0end = createLinkEndFrame(params.link_0_length, link0origin);
+    joint1frame = createJointFrame(params.theta1, params.joint1_direction, link0end);
+    createJoint(link0end, params.joint1_direction);
+
+    link1origin = createLinkOrigin(params.link_1_direction, joint1frame);
+    createLink(params.link_1_length, link1origin);
+    link1end = createLinkEndFrame(params.link_1_length, link1origin);
+    joint2frame = createJointFrame(params.theta2, params.joint2_direction, link1end);
+    createJoint(link1end, params.joint2_direction);
+
+    link2origin = createLinkOrigin(params.link_2_direction, joint2frame);
+    createLink(params.link_2_length, link2origin);
+    link2end = createLinkEndFrame(params.link_2_length, link2origin);
+    joint3frame = createJointFrame(params.theta3, params.joint3_direction, link2end);
+    createJoint(link2end, params.joint3_direction);
+
+    link3origin = createLinkOrigin(params.link_3_direction, joint3frame);
+    createLink(params.link_3_length, link3origin);
+    link3end = createLinkEndFrame(params.link_3_length, link3origin);
+    TCP4 = createTCPframe(0, link3end);
+
+    console.log('TCP Matrix', TCP4.matrix);
+}
+
 function updateJointRotation(jointFrame: THREE.AxesHelper, angle: number, direction: Axis) {
     // Reset rotation
     jointFrame.rotation.set(0, 0, 0);
@@ -205,16 +131,3 @@ function updateJointRotation(jointFrame: THREE.AxesHelper, angle: number, direct
         jointFrame.rotateZ(rotationAngle);
     }
 }
-
-// Update robot parameters periodically
-setInterval(updateRobot, 120);
-
-function animate() {
-    requestAnimationFrame(animate);
-    // required if controls.enableDamping or controls.autoRotate are set to true
-    controls.update();
-    renderer.render(scene, camera);
-}
-
-//Animate
-animate();
