@@ -77,13 +77,9 @@ export function createJointFrame(theta: number, jointDirection: Axis, parent: TH
     return axesHelper;
 }
 
-export function createTCPframe(link2length: number, parent: THREE.Object3D): THREE.AxesHelper {
-    const axesHelper = new THREE.AxesHelper(5);
-    
-    // Position relative to parent link
-    axesHelper.translateY(-link2length / 2);
-    axesHelper.rotateZ(Math.PI);
-    
+export function createTCPframe(parent: THREE.Object3D): THREE.AxesHelper {
+    const axesHelper = new THREE.AxesHelper(5);    
     parent.add(axesHelper);
+
     return axesHelper;
 }

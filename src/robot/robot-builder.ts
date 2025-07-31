@@ -97,7 +97,7 @@ export class RobotBuilder {
         const link3end = createLinkEndFrame(userInputs.link_3_length, link3origin);
         
         // TCP (Tool Center Point)
-        const tcp = createTCPframe(0, link3end);
+        const tcp = createTCPframe(link3end);
 
         return {
             link0origin,

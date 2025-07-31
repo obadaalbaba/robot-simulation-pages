@@ -18,20 +18,30 @@ export const defaultUserInputs: UserInputs = {
     link_3_length: 15,
 };
 
+// Shared configuration values
+const ANGLE_LIMITS = { min: -180, max: 180 };
+const LENGTH_LIMITS = { min: 0, max: 20 };
+
 // GUI configuration
 export const guiConfig = {
     angles: {
-        theta1: { min: 0, max: 360 },
-        theta2: { min: -180, max: 180 },
-        theta3: { min: -180, max: 180 },
+        theta1: ANGLE_LIMITS,
+        theta2: ANGLE_LIMITS,
+        theta3: ANGLE_LIMITS,
     },
     lengths: {
-        link_0_length: { min: 0, max: 20 },
-        link_1_length: { min: 0, max: 20 },
-        link_2_length: { min: 0, max: 20 },
-        link_3_length: { min: 0, max: 20 },
+        link_0_length: LENGTH_LIMITS,
+        link_1_length: LENGTH_LIMITS,
+        link_2_length: LENGTH_LIMITS,
+        link_3_length: LENGTH_LIMITS,
     },
     orientations: {
         axisOptions: ['x', 'y', 'z'] as const,
+    },
+    
+    // Configuration constants for easy maintenance
+    limits: {
+        angle: ANGLE_LIMITS,
+        length: LENGTH_LIMITS,
     },
 };
