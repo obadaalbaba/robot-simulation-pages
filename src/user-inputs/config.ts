@@ -3,19 +3,19 @@ import { UserInputs } from './types';
 // Default robot parameters
 export const defaultUserInputs: UserInputs = {
     link_0_direction: 'z',
-    link_0_length: 10,
-    joint1_direction: 'y',
-    theta1: 290,
+    link_0_length: 5,
+    joint1_direction: 'z',
+    theta1: 120,
     link_1_direction: 'x',
-    link_1_length: 10,
+    link_1_length: 5,
     joint2_direction: 'z',
-    theta2: 80,
+    theta2: 45,
     link_2_direction: 'y',
-    link_2_length: 10,
-    joint3_direction: 'x',
-    theta3: 45,
-    link_3_direction: 'y',
-    link_3_length: 10,
+    link_2_length: 15,
+    joint3_direction: 'y',
+    theta3: -45,
+    link_3_direction: 'x',
+    link_3_length: 15,
 };
 
 // GUI configuration
