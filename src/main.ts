@@ -50,6 +50,7 @@ const userInputs: UserInputs = {
     link_3_length: 10,
 };
 
+// GUI
 const gui = new dat.GUI();
 const anglesFolder = gui.addFolder('Angles');
 anglesFolder.add(userInputs, 'theta1', 0, 360);
@@ -82,9 +83,7 @@ const controls = createControls(camera, renderer);
 const baseFrame = createBaseFrame(4);
 scene.add(baseFrame);
 
-// Build hierarchical robot structure following the new approach:
-// baseFrame -> link0origin -> link0 -> link0end -> joint1 -> joint1frame -> link1origin -> link1 -> ...
-
+// Build robot structure
 let link0origin = createLinkOrigin(userInputs.link_0_direction, baseFrame);
 let link0 = createLink(userInputs.link_0_length, link0origin);
 let link0end = createLinkEndFrame(userInputs.link_0_length, link0origin);
@@ -125,15 +124,14 @@ let previousParams = {
     link_3_length: userInputs.link_3_length,
 };
 
-// Efficient update function - only update what changed
+// Update robot parameters periodically
 function updateRobot() {
-    // Always update joint angles (these are fast operations)
-    // Update joint rotations based on their direction
+    // Update joint angles
     updateJointRotation(joint1frame, userInputs.theta1, userInputs.joint1_direction);
     updateJointRotation(joint2frame, userInputs.theta2, userInputs.joint2_direction);
     updateJointRotation(joint3frame, userInputs.theta3, userInputs.joint3_direction);
     
-    // Check if any structural parameters changed
+    // Check if any structural parameters changed (i.e. if the robot has been re-built)
     const structuralChanged = 
         previousParams.link_0_direction !== userInputs.link_0_direction ||
         previousParams.link_0_length !== userInputs.link_0_length ||
