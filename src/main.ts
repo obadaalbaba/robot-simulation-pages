@@ -1,11 +1,5 @@
 import * as THREE from 'three';
 import {
-    createScene,
-    createRenderer,
-    createCamera,
-    createGrid,
-    createControls,
-    createBaseFrame,
     createLinkOrigin,
     createLink,
     createLinkEndFrame,
@@ -15,20 +9,15 @@ import {
     type Axis
 } from './functions';
 import { UserInputManager } from './user-inputs';
+import { SceneManager } from './scene';
+
+// Initialize scene manager
+const sceneManager = new SceneManager();
+const baseFrame = sceneManager.getBaseFrame();
 
 // Initialize user input manager
 const inputManager = new UserInputManager();
 const userInputs = inputManager.getUserInputs();
-
-//this file depends on constants and functions defined in the other files: constants.js & functions.js
-const scene = createScene(0x808080);
-const renderer = createRenderer();
-const camera = createCamera(100, -100);
-const grid = createGrid(100, 20);
-scene.add(grid);
-const controls = createControls(camera, renderer);
-const baseFrame = createBaseFrame(4);
-scene.add(baseFrame);
 
 // Build robot structure
 let link0origin = createLinkOrigin(userInputs.link_0_direction, baseFrame);
@@ -68,15 +57,8 @@ inputManager.onJointUpdate((params) => {
 // Start monitoring user inputs
 inputManager.startMonitoring(120);
 
-//Animate
-animate();
-
-function animate() {
-    requestAnimationFrame(animate);
-    // required if controls.enableDamping or controls.autoRotate are set to true
-    controls.update();
-    renderer.render(scene, camera);
-}
+// Start animation loop
+sceneManager.startAnimation();
 
 // Update joint angles only
 function updateJointAngles(params: typeof userInputs) {
