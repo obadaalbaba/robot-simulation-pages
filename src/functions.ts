@@ -55,11 +55,9 @@ export function createLinkOrigin(direction: Axis, parent: THREE.Object3D): THREE
     
     // Orient the origin frame based on the specified direction
     if (direction === 'x') {
-        axesHelper.rotateZ(-Math.PI / 2); // Rotate so z-axis points along x
+        axesHelper.rotateY(Math.PI / 2); // Rotate so z-axis points along x
     } else if (direction === 'y') {
-        // Default orientation has z-axis pointing along y, so no rotation needed
-    } else { // direction === 'z'
-        axesHelper.rotateX(Math.PI / 2); // Rotate so z-axis points along z
+        axesHelper.rotateX(-Math.PI / 2);
     }
     
     parent.add(axesHelper);
