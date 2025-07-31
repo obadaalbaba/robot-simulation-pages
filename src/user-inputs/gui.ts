@@ -4,12 +4,18 @@ import { guiConfig } from './config';
 
 export class UserInputsGUI {
     private gui: dat.GUI;
-    private anglesFolder!: dat.GUI;
-    private lengthFolder!: dat.GUI;
-    private orientationsFolder!: dat.GUI;
+    private anglesFolder: dat.GUI;
+    private lengthFolder: dat.GUI;
+    private orientationsFolder: dat.GUI;
 
     constructor(private userInputs: UserInputs) {
         this.gui = new dat.GUI();
+        
+        // Initialize folders directly in constructor
+        this.anglesFolder = this.gui.addFolder('Angles');
+        this.lengthFolder = this.gui.addFolder('Lengths');
+        this.orientationsFolder = this.gui.addFolder('Orientations');
+        
         this.setupGUI();
     }
 
@@ -20,8 +26,6 @@ export class UserInputsGUI {
     }
 
     private setupAnglesFolder(): void {
-        this.anglesFolder = this.gui.addFolder('Angles');
-        
         const { angles } = guiConfig;
         this.anglesFolder.add(this.userInputs, 'theta1', angles.theta1.min, angles.theta1.max);
         this.anglesFolder.add(this.userInputs, 'theta2', angles.theta2.min, angles.theta2.max);
@@ -31,8 +35,6 @@ export class UserInputsGUI {
     }
 
     private setupLengthsFolder(): void {
-        this.lengthFolder = this.gui.addFolder('Lengths');
-        
         const { lengths } = guiConfig;
         this.lengthFolder.add(this.userInputs, 'link_0_length', lengths.link_0_length.min, lengths.link_0_length.max);
         this.lengthFolder.add(this.userInputs, 'link_1_length', lengths.link_1_length.min, lengths.link_1_length.max);
@@ -43,8 +45,6 @@ export class UserInputsGUI {
     }
 
     private setupOrientationsFolder(): void {
-        this.orientationsFolder = this.gui.addFolder('Orientations');
-        
         const { orientations } = guiConfig;
         this.orientationsFolder.add(this.userInputs, 'link_0_direction', orientations.axisOptions);
         this.orientationsFolder.add(this.userInputs, 'joint1_direction', orientations.axisOptions);
