@@ -15,9 +15,9 @@ export function createRenderer(): THREE.WebGLRenderer {
 }
 
 export function createCamera(
-    cameraPositionZ: number = 5,
-    cameraPositionY: number = -5,
-    cameraPositionX: number = 0
+    cameraPositionZ: number,
+    cameraPositionY: number,
+    cameraPositionX: number
 ): THREE.PerspectiveCamera {
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
     camera.position.z = cameraPositionZ;
@@ -28,7 +28,7 @@ export function createCamera(
 
 export function createGrid(gridSize: number, gridStep: number): THREE.GridHelper {
     const grid = new THREE.GridHelper(gridSize, gridStep);
-    grid.rotation.x = Math.PI / 2;
+    // grid.rotation.x = Math.PI / 2;
     return grid;
 }
 

@@ -6,7 +6,7 @@ export interface SceneConfig {
     camera: {
         positionZ: number;
         positionY: number;
-        positionX?: number;
+        positionX: number;
     };
     grid: {
         size: number;
