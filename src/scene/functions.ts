@@ -7,10 +7,12 @@ export function createScene(sceneColor: number): THREE.Scene {
     return scene;
 }
 
-export function createRenderer(): THREE.WebGLRenderer {
+export function createRenderer(container?: HTMLElement): THREE.WebGLRenderer {
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    if (container) {
+        container.appendChild(renderer.domElement);
+    }
     return renderer;
 }
 
@@ -39,8 +41,8 @@ export function createControls(camera: THREE.Camera, renderer: THREE.WebGLRender
     return controls;
 }
 
-export function createReferenceFrame(arrowThickness: number = 4): THREE.AxesHelper {
+export function createReferenceFrame(): THREE.AxesHelper {
     const axesHelper = new THREE.AxesHelper(5);
-    axesHelper.material.linewidth = arrowThickness;
+
     return axesHelper;
 }

@@ -22,7 +22,7 @@ export class SceneManager {
     private initializeScene(): SceneComponents {
         // Create core components
         const scene = createScene(this.config.backgroundColor);
-        const renderer = createRenderer();
+        const renderer = createRenderer(document.body);
         const camera = createCamera(
             this.config.camera.positionZ,
             this.config.camera.positionY,
@@ -34,7 +34,7 @@ export class SceneManager {
         
         // Create scene objects
         const grid = createGrid(this.config.grid.size, this.config.grid.divisions);
-        const worldReferenceFrame = createReferenceFrame(this.config.worldReferenceFrame.size);
+        const worldReferenceFrame = createReferenceFrame();
         
         // Add objects to scene
         scene.add(grid);
@@ -76,23 +76,28 @@ export class SceneManager {
 
     public startAnimation(animationCallback?: () => void): void {
         const animate = () => {
-            requestAnimationFrame(animate);
-            
-            // Update controls if they have damping or auto-rotate enabled
-            this.components.controls.update();
-            
-            // Custom animation callback
-            if (animationCallback) {
-                animationCallback();
+            try {
+                requestAnimationFrame(animate);
+                
+                // Update controls if they have damping or auto-rotate enabled
+                this.components.controls.update();
+                
+                // Custom animation callback
+                if (animationCallback) {
+                    animationCallback();
+                }
+                
+                // Render the scene
+                this.components.renderer.render(this.components.scene, this.components.camera);
+            } catch (error) {
+                console.error('Animation loop error:', error);
+                // Continue animation loop even if one frame fails
+                requestAnimationFrame(animate);
             }
-            
-            // Render the scene
-            this.components.renderer.render(this.components.scene, this.components.camera);
         };
         
         animate();
     }
-
     public dispose(): void {
         // Clean up renderer
         this.components.renderer.dispose();

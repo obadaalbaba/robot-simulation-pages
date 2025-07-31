@@ -12,9 +12,6 @@ export interface SceneConfig {
         size: number;
         divisions: number;
     };
-    worldReferenceFrame: {
-        size: number;
-    };
 }
 
 export interface SceneComponents {

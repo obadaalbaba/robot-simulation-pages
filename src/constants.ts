@@ -2,6 +2,9 @@
 
 import { type Axis } from "./shared/types";
 
+// Application configuration constants
+export const MONITOR_INTERVAL_SECONDS = 120;
+
 type Orientation = {
     axis: 'x' | 'y' | 'z';
     rotation: number;

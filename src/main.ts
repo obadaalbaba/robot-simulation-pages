@@ -1,19 +1,22 @@
 import { UserInputManager } from './user-inputs';
 import { SceneManager } from './scene';
 import { RobotBuilder } from './robot';
+import { MONITOR_INTERVAL_SECONDS } from './constants';
 
-// Initialize scene manager
+// Initialize managers
 const sceneManager = new SceneManager();
-const worldReferenceFrame = sceneManager.getWorldReferenceFrame();
-
-// Initialize user input manager
 const inputManager = new UserInputManager();
-const userInputs = inputManager.getUserInputs();
+const robotBuilder = new RobotBuilder(sceneManager.getWorldReferenceFrame());
 
-// Initialize robot builder and build initial robot
-const robotBuilder = new RobotBuilder(worldReferenceFrame);
-robotBuilder.buildRobot(userInputs);
-
+try {
+    // Build initial robot
+    const userInputs = inputManager.getUserInputs();
+    robotBuilder.buildRobot(userInputs);
+} catch (error) {
+    console.error('Failed to initialize application:', error);
+    // Display user-friendly error message
+    throw error;
+}
 // Set up input monitoring callbacks
 inputManager.onStructuralChange((params) => {
     robotBuilder.rebuildRobot(params);
@@ -24,7 +27,7 @@ inputManager.onJointUpdate((params) => {
 });
 
 // Start monitoring user inputs
-inputManager.startMonitoring(120);
+inputManager.startMonitoring(MONITOR_INTERVAL_SECONDS);
 
 // Start animation loop
 sceneManager.startAnimation();

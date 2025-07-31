@@ -10,8 +10,5 @@ export const defaultSceneConfig: SceneConfig = {
     grid: {
         size: 100,
         divisions: 20,
-    },
-    worldReferenceFrame: {
-        size: 4,
-    },
+    }
 };
