@@ -1,4 +1,4 @@
-import { type Axis } from '../functions';
+import { type Axis } from '../shared/types';
 
 export type UserInputs = {
     link_0_direction: Axis;

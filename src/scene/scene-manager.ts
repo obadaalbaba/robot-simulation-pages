@@ -6,7 +6,7 @@ import {
     createGrid,
     createControls,
     createReferenceFrame,
-} from '../functions';
+} from './functions';
 import { SceneConfig, SceneComponents } from './types';
 import { defaultSceneConfig } from './config';
 

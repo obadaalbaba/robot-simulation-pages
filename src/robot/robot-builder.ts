@@ -6,8 +6,8 @@ import {
     createJoint,
     createJointFrame,
     createTCPframe,
-    type Axis
-} from '../functions';
+} from './functions';
+import { type Axis } from '../shared/types';
 import { type UserInputs } from '../user-inputs';
 import { RobotComponents } from './types';
 
