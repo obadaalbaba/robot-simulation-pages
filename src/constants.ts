@@ -1,12 +1,14 @@
 //Define constants.
 
+import { type Axis } from "./shared/types";
+
 type Orientation = {
     axis: 'x' | 'y' | 'z';
     rotation: number;
 };
 
 type LinkOrientation = {
-    [key: string]: Orientation;
+    [key in Axis]: Orientation;
 };
 
 const linkOrientation: LinkOrientation = {
