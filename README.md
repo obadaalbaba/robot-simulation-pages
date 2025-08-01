@@ -1,14 +1,16 @@
 # Robot Simulation
 
 ## Summary
-This TypeScript-based application renders a customizable 4-link robotic arm with 3 rotary joints. The goal of this project is to create a tool that allows users to visualize different robot configurations and perform forward kinematics calculations in a 3D environment.
+This TypeScript-based application renders a customizable 4-link robotic arm with 3 rotary joints. The goal of this project is to create a comprehensive tool that allows users to visualize different robot configurations, perform forward kinematics calculations in a 3D environment, and monitor performance metrics through integrated analytics. The application combines robot simulation with real-time performance tracking and user behavior analytics.
 
 ## Features
 - **4-Link Robot**: Configurable robot with links 0-3 and joints 1-3
 - **Real-time Visualization**: Interactive 3D environment with orbit controls
 - **Customizable Parameters**: Modify joint angles, link lengths, and orientations
 - **Forward Kinematics**: Visualize coordinate frames and TCP (Tool Center Point)
-- **Modern Architecture**: Modular TypeScript codebase with type safety
+- **Performance Analytics**: Real-time FPS monitoring with Cognitive3D integration
+- **User Behavior Tracking**: Gaze tracking and interaction analytics capabilities
+- **Modern Architecture**: Modular TypeScript codebase with comprehensive type safety
 
 ## How to Run the Code
 
@@ -60,20 +62,32 @@ The codebase is organized into modular TypeScript components:
 src/
 ├── main.ts              # Application entry point
 ├── constants.ts         # Global constants
-├── robot/              # Robot construction and management
+├── vite-env.d.ts        # Vite environment type definitions
+├── analytics/           # Performance monitoring and analytics
+│   ├── fps-monitor.ts   # FPS tracking and Cognitive3D integration
+│   └── index.ts         # Module exports
+├── robot/               # Robot construction and management
 │   ├── robot-builder.ts # Main robot building logic
-│   ├── functions.ts    # Robot component creation functions
-│   └── types.ts        # Robot-related type definitions
-├── scene/              # 3D scene management
+│   ├── functions.ts     # Robot component creation functions
+│   ├── types.ts         # Robot-related type definitions
+│   └── index.ts         # Module exports
+├── scene/               # 3D scene management
 │   ├── scene-manager.ts # Scene initialization and animation
-│   ├── functions.ts    # Scene creation utilities
-│   └── config.ts       # Scene configuration
-├── user-inputs/        # User interface and input handling
+│   ├── functions.ts     # Scene creation utilities
+│   ├── config.ts        # Scene configuration
+│   ├── types.ts         # Scene-related type definitions
+│   └── index.ts         # Module exports
+├── user-inputs/         # User interface and input handling
 │   ├── input-manager.ts # Input monitoring and callbacks
-│   ├── gui.ts          # dat.GUI interface setup
-│   └── config.ts       # GUI configuration
-└── shared/             # Shared types and utilities
-    └── types.ts        # Common type definitions
+│   ├── gui.ts           # dat.GUI interface setup
+│   ├── config.ts        # GUI configuration
+│   ├── types.ts         # Input-related type definitions
+│   └── index.ts         # Module exports
+├── shared/              # Shared types and utilities
+│   ├── types.ts         # Common type definitions
+│   └── index.ts         # Module exports
+└── types/               # External library type definitions
+    └── cognitive3d.d.ts # Cognitive3D analytics type declarations
 ```
 
 ## Architecture
@@ -82,12 +96,21 @@ src/
 1. **SceneManager**: Manages the 3D environment, camera, lights, and animation loop
 2. **UserInputManager**: Handles dat.GUI interface and monitors user input changes
 3. **RobotBuilder**: Constructs and updates the robot based on user parameters
+4. **FPSMonitor**: Tracks performance metrics and integrates with Cognitive3D analytics platform
 
 ### Key Classes and Modules
 - `SceneManager`: Initializes Three.js scene, camera, renderer, and controls
 - `UserInputManager`: Provides real-time input monitoring with callbacks for structural changes and joint updates
 - `RobotBuilder`: Handles robot construction, destruction, and joint angle updates
+- `FPSMonitor`: Integrates with Cognitive3D analytics for performance tracking, gaze recording, and sensor data collection
 - Modular functions for creating links, joints, coordinate frames, and TCP
+
+### Analytics Integration
+The application integrates with **Cognitive3D**, a platform for spatial analytics and user behavior tracking:
+- **Performance Monitoring**: Real-time FPS tracking with visual display and data logging
+- **Gaze Tracking**: Capability to record user gaze patterns (camera-based tracking available)
+- **Sensor Data**: Integration for recording custom sensor data and user interactions
+- **Scene Analytics**: Detailed scene usage analytics and user engagement metrics
 
 ## Robot Configuration
 The robot supports the following customizable parameters:
@@ -112,6 +135,7 @@ The robot supports the following customizable parameters:
 ### Core Libraries
 - **Three.js**: 3D graphics and rendering
 - **dat.GUI**: Real-time parameter control interface
+- **Cognitive3D Analytics**: Performance monitoring and user behavior analytics
 - **TypeScript**: Type-safe development
 - **Vite**: Modern build tool and development server
 
@@ -126,6 +150,7 @@ The robot supports the following customizable parameters:
 The application uses a clean separation of concerns:
 - Scene management is isolated from robot logic
 - User inputs are decoupled from robot construction
+- Analytics and performance monitoring operate independently
 - Type-safe interfaces ensure reliable component interaction
 
 ### Real-time Updates
@@ -137,6 +162,12 @@ The application uses a clean separation of concerns:
 - Visual representation of all coordinate frames
 - Real-time TCP calculation and display
 - Support for complex multi-axis joint orientations
+
+### Performance Analytics Integration
+- Real-time FPS monitoring with visual feedback
+- Comprehensive scene analytics through Cognitive3D platform
+- Automated performance data collection and reporting
+- Extensible sensor data recording for custom metrics
 
 ## Future Enhancements
 1. **Inverse Kinematics**: Add inverse kinematics solver
