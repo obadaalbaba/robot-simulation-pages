@@ -8,10 +8,17 @@ export interface FPSMonitorConfig {
     versionNumber: string;
 }
 
+export interface FPSMetrics {
+    avg: number;
+    '1pl': number;
+}
+
 export class FPSMonitor {
     private c3d: C3DAnalytics;
     private adapter: C3DThreeAdapter;
     private isMonitoring: boolean = false;
+    private fpsDisplay: HTMLElement | null = null;
+    private onFPSUpdate?: (metrics: FPSMetrics) => void;
 
     constructor(config: FPSMonitorConfig) {
         // Initialize C3D Analytics
@@ -31,6 +38,46 @@ export class FPSMonitor {
 
         // Set the current scene
         this.c3d.setScene(config.sceneName);
+        
+        // Create FPS display element
+        this.createFPSDisplay();
+    }
+
+    private createFPSDisplay(): void {
+        this.fpsDisplay = document.createElement('div');
+        this.fpsDisplay.id = 'fps-monitor';
+        this.fpsDisplay.style.cssText = `
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10000;
+            user-select: none;
+            pointer-events: none;
+            border: 1px solid rgba(0, 255, 0, 0.3);
+        `;
+        this.fpsDisplay.textContent = 'FPS: Initializing...';
+        document.body.appendChild(this.fpsDisplay);
+    }
+
+    private updateFPSDisplay(metrics: FPSMetrics): void {
+        if (this.fpsDisplay) {
+            this.fpsDisplay.innerHTML = `
+                FPS: ${metrics.avg.toFixed(1)}<br>
+                1%L: ${metrics['1pl'].toFixed(1)}
+            `;
+        }
+        
+        // Call external callback if provided
+        if (this.onFPSUpdate) {
+            this.onFPSUpdate(metrics);
+        }
     }
 
     public async start(): Promise<void> {
@@ -39,7 +86,7 @@ export class FPSMonitor {
         // Start FPS monitoring
         if (this.c3d.fpsTracker) {
             this.c3d.fpsTracker.start((metrics) => {
-                console.log(`📊 FPS: ${metrics.avg.toFixed(1)} avg, ${metrics['1pl'].toFixed(1)} 1%L`);
+                this.updateFPSDisplay(metrics);
             });
             console.log('✅ FPS monitoring started');
         } else {
@@ -64,7 +111,27 @@ export class FPSMonitor {
             this.c3d.endSession().catch(console.error);
         }
 
+        // Remove FPS display
+        if (this.fpsDisplay && this.fpsDisplay.parentNode) {
+            this.fpsDisplay.parentNode.removeChild(this.fpsDisplay);
+            this.fpsDisplay = null;
+        }
+
         this.isMonitoring = false;
+    }
+
+    public setFPSCallback(callback: (metrics: FPSMetrics) => void): void {
+        this.onFPSUpdate = callback;
+    }
+
+    public showFPSDisplay(show: boolean = true): void {
+        if (this.fpsDisplay) {
+            this.fpsDisplay.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    public hideFPSDisplay(): void {
+        this.showFPSDisplay(false);
     }
 
     public getAdapter(): C3DThreeAdapter {

@@ -1,1 +1,1 @@
-export { FPSMonitor, type FPSMonitorConfig } from './fps-monitor';
+export { FPSMonitor, type FPSMonitorConfig, type FPSMetrics } from './fps-monitor';

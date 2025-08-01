@@ -17,7 +17,7 @@ const fpsMonitor = new FPSMonitor({
     versionNumber: import.meta.env.VITE_C3D_VERSION || '1'
 });
 
-// Start FPS monitoring
+// Start FPS monitoring with visual display
 fpsMonitor.start();
 
 // Initialize managers
