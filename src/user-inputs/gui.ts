@@ -34,6 +34,9 @@ export class UserInputsGUI {
         this.anglesFolder.add(this.userInputs, 'theta1', angles.theta1.min, angles.theta1.max);
         this.anglesFolder.add(this.userInputs, 'theta2', angles.theta2.min, angles.theta2.max);
         this.anglesFolder.add(this.userInputs, 'theta3', angles.theta3.min, angles.theta3.max);
+        this.anglesFolder.add(this.userInputs, 'theta4', angles.theta4.min, angles.theta4.max);
+        this.anglesFolder.add(this.userInputs, 'theta5', angles.theta5.min, angles.theta5.max);
+        this.anglesFolder.add(this.userInputs, 'theta6', angles.theta6.min, angles.theta6.max);
         
         this.anglesFolder.open();
     }
@@ -48,7 +51,7 @@ export class UserInputsGUI {
         const { lengths } = guiConfig;
         
         // Validate each required length property exists and has min/max values
-        const requiredLengthProperties = ['link_0_length', 'link_1_length', 'link_2_length', 'link_3_length'] as const;
+        const requiredLengthProperties = ['link_0_length', 'link_1_length', 'link_2_length', 'link_3_length', 'link_4_length', 'link_5_length', 'link_6_length'] as const;
         
         for (const property of requiredLengthProperties) {
             if (!lengths[property]) {
@@ -76,6 +79,9 @@ export class UserInputsGUI {
             this.lengthFolder.add(this.userInputs, 'link_1_length', lengths.link_1_length.min, lengths.link_1_length.max);
             this.lengthFolder.add(this.userInputs, 'link_2_length', lengths.link_2_length.min, lengths.link_2_length.max);
             this.lengthFolder.add(this.userInputs, 'link_3_length', lengths.link_3_length.min, lengths.link_3_length.max);
+            this.lengthFolder.add(this.userInputs, 'link_4_length', lengths.link_4_length.min, lengths.link_4_length.max);
+            this.lengthFolder.add(this.userInputs, 'link_5_length', lengths.link_5_length.min, lengths.link_5_length.max);
+            this.lengthFolder.add(this.userInputs, 'link_6_length', lengths.link_6_length.min, lengths.link_6_length.max);
             
             this.lengthFolder.open();
         } catch (error) {
@@ -93,6 +99,9 @@ export class UserInputsGUI {
             this.lengthFolder.add(this.userInputs, 'link_1_length', fallbackLengthLimits.min, fallbackLengthLimits.max);
             this.lengthFolder.add(this.userInputs, 'link_2_length', fallbackLengthLimits.min, fallbackLengthLimits.max);
             this.lengthFolder.add(this.userInputs, 'link_3_length', fallbackLengthLimits.min, fallbackLengthLimits.max);
+            this.lengthFolder.add(this.userInputs, 'link_4_length', fallbackLengthLimits.min, fallbackLengthLimits.max);
+            this.lengthFolder.add(this.userInputs, 'link_5_length', fallbackLengthLimits.min, fallbackLengthLimits.max);
+            this.lengthFolder.add(this.userInputs, 'link_6_length', fallbackLengthLimits.min, fallbackLengthLimits.max);
             
             this.lengthFolder.open();
             console.log('GUI: Successfully set up lengths folder with fallback defaults.');
@@ -126,6 +135,12 @@ export class UserInputsGUI {
             this.orientationsFolder.add(this.userInputs, 'link_2_direction', orientations.axisOptions);
             this.orientationsFolder.add(this.userInputs, 'joint3_direction', orientations.axisOptions);
             this.orientationsFolder.add(this.userInputs, 'link_3_direction', orientations.axisOptions);
+            this.orientationsFolder.add(this.userInputs, 'joint4_direction', orientations.axisOptions);
+            this.orientationsFolder.add(this.userInputs, 'link_4_direction', orientations.axisOptions);
+            this.orientationsFolder.add(this.userInputs, 'joint5_direction', orientations.axisOptions);
+            this.orientationsFolder.add(this.userInputs, 'link_5_direction', orientations.axisOptions);
+            this.orientationsFolder.add(this.userInputs, 'joint6_direction', orientations.axisOptions);
+            this.orientationsFolder.add(this.userInputs, 'link_6_direction', orientations.axisOptions);
             
             this.orientationsFolder.open();
         } catch (error) {
@@ -146,6 +161,12 @@ export class UserInputsGUI {
             this.orientationsFolder.add(this.userInputs, 'link_2_direction', fallbackAxisOptions);
             this.orientationsFolder.add(this.userInputs, 'joint3_direction', fallbackAxisOptions);
             this.orientationsFolder.add(this.userInputs, 'link_3_direction', fallbackAxisOptions);
+            this.orientationsFolder.add(this.userInputs, 'joint4_direction', fallbackAxisOptions);
+            this.orientationsFolder.add(this.userInputs, 'link_4_direction', fallbackAxisOptions);
+            this.orientationsFolder.add(this.userInputs, 'joint5_direction', fallbackAxisOptions);
+            this.orientationsFolder.add(this.userInputs, 'link_5_direction', fallbackAxisOptions);
+            this.orientationsFolder.add(this.userInputs, 'joint6_direction', fallbackAxisOptions);
+            this.orientationsFolder.add(this.userInputs, 'link_6_direction', fallbackAxisOptions);
             
             this.orientationsFolder.open();
             console.log('GUI: Successfully set up orientations folder with fallback defaults.');

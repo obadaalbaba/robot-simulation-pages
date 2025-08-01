@@ -75,7 +75,16 @@ export class UserInputManager {
             previous.link_2_length !== current.link_2_length ||
             previous.joint3_direction !== current.joint3_direction ||
             previous.link_3_direction !== current.link_3_direction ||
-            previous.link_3_length !== current.link_3_length
+            previous.link_3_length !== current.link_3_length ||
+            previous.joint4_direction !== current.joint4_direction ||
+            previous.link_4_direction !== current.link_4_direction ||
+            previous.link_4_length !== current.link_4_length ||
+            previous.joint5_direction !== current.joint5_direction ||
+            previous.link_5_direction !== current.link_5_direction ||
+            previous.link_5_length !== current.link_5_length ||
+            previous.joint6_direction !== current.joint6_direction ||
+            previous.link_6_direction !== current.link_6_direction ||
+            previous.link_6_length !== current.link_6_length
         );
     }
 
@@ -92,6 +101,15 @@ export class UserInputManager {
             joint3_direction: inputs.joint3_direction,
             link_3_direction: inputs.link_3_direction,
             link_3_length: inputs.link_3_length,
+            joint4_direction: inputs.joint4_direction,
+            link_4_direction: inputs.link_4_direction,
+            link_4_length: inputs.link_4_length,
+            joint5_direction: inputs.joint5_direction,
+            link_5_direction: inputs.link_5_direction,
+            link_5_length: inputs.link_5_length,
+            joint6_direction: inputs.joint6_direction,
+            link_6_direction: inputs.link_6_direction,
+            link_6_length: inputs.link_6_length,
         };
     }
 

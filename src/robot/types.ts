@@ -18,6 +18,9 @@ export interface RobotComponents {
     joint1frame: THREE.AxesHelper;
     joint2frame: THREE.AxesHelper;
     joint3frame: THREE.AxesHelper;
+    joint4frame: THREE.AxesHelper;
+    joint5frame: THREE.AxesHelper;
+    joint6frame: THREE.AxesHelper;
     
     // Tool Center Point
     tcp: THREE.AxesHelper;

@@ -15,6 +15,18 @@ export type UserInputs = {
     theta3: number;
     link_3_direction: Axis;
     link_3_length: number;
+    joint4_direction: Axis;
+    theta4: number;
+    link_4_direction: Axis;
+    link_4_length: number;
+    joint5_direction: Axis;
+    theta5: number;
+    link_5_direction: Axis;
+    link_5_length: number;
+    joint6_direction: Axis;
+    theta6: number;
+    link_6_direction: Axis;
+    link_6_length: number;
 };
 
 export type StructuralParams = {
@@ -29,4 +41,13 @@ export type StructuralParams = {
     joint3_direction: Axis;
     link_3_direction: Axis;
     link_3_length: number;
+    joint4_direction: Axis;
+    link_4_direction: Axis;
+    link_4_length: number;
+    joint5_direction: Axis;
+    link_5_direction: Axis;
+    link_5_length: number;
+    joint6_direction: Axis;
+    link_6_direction: Axis;
+    link_6_length: number;
 };
