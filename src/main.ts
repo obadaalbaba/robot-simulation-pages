@@ -5,16 +5,24 @@ import { FPSMonitor } from './analytics';
 import { MONITOR_INTERVAL_SECONDS } from './constants';
 
 // Validate environment variables
-if (!import.meta.env.VITE_C3D_API_KEY) {
-    console.error('❌ VITE_C3D_API_KEY not found in environment variables');
-}
+const requiredEnvVars = [
+    'VITE_C3D_API_KEY',
+    'VITE_C3D_SCENE_NAME',
+    'VITE_C3D_SCENE_ID',
+    'VITE_C3D_VERSION'
+];
 
+const missingVars = requiredEnvVars.filter(varName => !import.meta.env[varName]);
+if (missingVars.length > 0) {
+    console.error('❌ Missing required environment variables:', missingVars);
+    console.error('Please check your .env file and ensure all Cognitive3D credentials are set.');
+}
 // Initialize FPS monitoring
 const fpsMonitor = new FPSMonitor({
-    apiKey: import.meta.env.VITE_C3D_API_KEY || '',
-    sceneName: import.meta.env.VITE_C3D_SCENE_NAME || 'BasicScene',
-    sceneId: import.meta.env.VITE_C3D_SCENE_ID || '',
-    versionNumber: import.meta.env.VITE_C3D_VERSION || '1'
+    apiKey: import.meta.env.VITE_C3D_API_KEY,
+    sceneName: import.meta.env.VITE_C3D_SCENE_NAME,
+    sceneId: import.meta.env.VITE_C3D_SCENE_ID,
+    versionNumber: import.meta.env.VITE_C3D_VERSION
 });
 
 // Start FPS monitoring with visual display
