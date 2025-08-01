@@ -29,7 +29,6 @@ export class RobotBuilder {
         const components = this.constructRobotStructure(userInputs);
         this.components = components;
 
-        console.log('Robot built - TCP Matrix:', components.tcp.matrix);
         return components;
     }
 

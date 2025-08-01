@@ -23,17 +23,29 @@ This TypeScript-based application renders a customizable 4-link robotic arm with
    cd robot-simulation-pages
    ```
 
-2. Install dependencies:
+2. Set up environment variables:
+   ```bash
+   # Copy the example environment file
+   cp env.example .env
+   ```
+   
+   Then edit the `.env` file and replace the placeholder values with your actual Cognitive3D credentials:
+   - `VITE_C3D_API_KEY`: Your Cognitive3D API key from the dashboard
+   - `VITE_C3D_SCENE_NAME`: The name of your scene in Cognitive3D  
+   - `VITE_C3D_SCENE_ID`: The unique ID of your scene (found in Cognitive3D dashboard)
+   - `VITE_C3D_VERSION`: Version number for your scene (typically starts at 1)
+
+3. Install dependencies:
    ```bash
    npm install
    ```
 
-3. Start the development server:
+4. Start the development server:
    ```bash
    npm run dev
    ```
 
-4. Open your browser and navigate to the provided local URL (typically `http://localhost:5173`)
+5. Open your browser and navigate to the provided local URL (typically `http://localhost:5173`)
 
 ### Build for Production
 ```bash
