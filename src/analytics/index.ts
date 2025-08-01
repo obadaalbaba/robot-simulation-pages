@@ -1,0 +1,1 @@
+export { FPSMonitor, type FPSMonitorConfig } from './fps-monitor';

@@ -1,43 +1,24 @@
 import { UserInputManager } from './user-inputs';
 import { SceneManager } from './scene';
 import { RobotBuilder } from './robot';
+import { FPSMonitor } from './analytics';
 import { MONITOR_INTERVAL_SECONDS } from './constants';
-import C3DAnalytics from '@cognitive3d/analytics';
-import C3DThreeAdapter from '@cognitive3d/analytics/adapters/threejs';
 
-
-const c3d = new C3DAnalytics({
-    config: {
-        APIKey: "SHTC90DAUQCGVNVL6JXHTLEWLYX2I0MR",
-        allSceneData: [{
-            sceneName: "BasicScene", 
-            sceneId: "93f486e4-0e22-4650-946a-e64ce527f915",
-            versionNumber: "1"
-        }]
-    }
-});
-const c3dAdapter = new C3DThreeAdapter(c3d);
-console.log(c3dAdapter)
-
-// Set the current scene (required before recording any data)
-c3d.setScene("BasicScene");
-
-// Start FPS monitoring
-if (c3d.fpsTracker) {
-    c3d.fpsTracker.start((metrics) => {
-        console.log(`📊 FPS: ${metrics.avg.toFixed(1)} avg, ${metrics['1pl'].toFixed(1)} 1%L`);
-    });
-    console.log('✅ FPS monitoring started');
-} else {
-    console.error('❌ FPS tracker not available');
+// Validate environment variables
+if (!import.meta.env.VITE_C3D_API_KEY) {
+    console.error('❌ VITE_C3D_API_KEY not found in environment variables');
 }
 
-// Start C3D session
-c3d.startSession().then(() => {
-    console.log('✅ C3D Analytics session started');
-}).catch((error) => {
-    console.warn('⚠️ C3D session start failed (expected for non-XR):', error);
+// Initialize FPS monitoring
+const fpsMonitor = new FPSMonitor({
+    apiKey: import.meta.env.VITE_C3D_API_KEY || '',
+    sceneName: import.meta.env.VITE_C3D_SCENE_NAME || 'BasicScene',
+    sceneId: import.meta.env.VITE_C3D_SCENE_ID || '',
+    versionNumber: import.meta.env.VITE_C3D_VERSION || '1'
 });
+
+// Start FPS monitoring
+fpsMonitor.start();
 
 // Initialize managers
 const sceneManager = new SceneManager();
@@ -60,17 +41,15 @@ inputManager.onJointUpdate((params) => {
 // Start monitoring user inputs
 inputManager.startMonitoring(MONITOR_INTERVAL_SECONDS);
 
-// Start animation loop (gaze tracking disabled due to 401 errors)
+// Start animation loop
 sceneManager.startAnimation(() => {
-    // Note: Gaze tracking disabled - causes 401 authentication errors
-    // c3dAdapter.recordGazeFromCamera(sceneManager.getCamera());
+    // Gaze tracking available via: fpsMonitor.getAdapter().recordGazeFromCamera(camera)
+    // Currently disabled due to authentication requirements
 });
 
 // Cleanup on window unload
 window.addEventListener('beforeunload', () => {
-    if (c3d.isSessionActive()) {
-        c3d.endSession().catch(console.error);
-    }
+    fpsMonitor.stop();
     sceneManager.dispose();
 });
 
