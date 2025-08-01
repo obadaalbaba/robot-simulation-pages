@@ -17,9 +17,27 @@ const c3d = new C3DAnalytics({
     }
 });
 const c3dAdapter = new C3DThreeAdapter(c3d);
-
-console.log(c3d)
 console.log(c3dAdapter)
+
+// Set the current scene (required before recording any data)
+c3d.setScene("BasicScene");
+
+// Start FPS monitoring
+if (c3d.fpsTracker) {
+    c3d.fpsTracker.start((metrics) => {
+        console.log(`📊 FPS: ${metrics.avg.toFixed(1)} avg, ${metrics['1pl'].toFixed(1)} 1%L`);
+    });
+    console.log('✅ FPS monitoring started');
+} else {
+    console.error('❌ FPS tracker not available');
+}
+
+// Start C3D session
+c3d.startSession().then(() => {
+    console.log('✅ C3D Analytics session started');
+}).catch((error) => {
+    console.warn('⚠️ C3D session start failed (expected for non-XR):', error);
+});
 
 // Initialize managers
 const sceneManager = new SceneManager();
@@ -42,7 +60,18 @@ inputManager.onJointUpdate((params) => {
 // Start monitoring user inputs
 inputManager.startMonitoring(MONITOR_INTERVAL_SECONDS);
 
-// Start animation loop
-sceneManager.startAnimation();
+// Start animation loop (gaze tracking disabled due to 401 errors)
+sceneManager.startAnimation(() => {
+    // Note: Gaze tracking disabled - causes 401 authentication errors
+    // c3dAdapter.recordGazeFromCamera(sceneManager.getCamera());
+});
+
+// Cleanup on window unload
+window.addEventListener('beforeunload', () => {
+    if (c3d.isSessionActive()) {
+        c3d.endSession().catch(console.error);
+    }
+    sceneManager.dispose();
+});
 
 // All robot construction and update logic is now handled by RobotBuilder
