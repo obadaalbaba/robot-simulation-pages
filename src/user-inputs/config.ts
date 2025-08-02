@@ -1,47 +1,62 @@
 import { UserInputs } from './types';
+import { RobotDefinitionUtils } from '../robot/robot-definition';
 
-// Default robot parameters
-export const defaultUserInputs: UserInputs = {
-    link_0_direction: 'y',
-    link_0_length: 5,
-    joint1_direction: 'y',
-    theta1: 150,
-    link_1_direction: 'z',
-    link_1_length: 5,
-    joint2_direction: 'y',
-    theta2: 45,
-    link_2_direction: 'x',
-    link_2_length: 15,
-    joint3_direction: 'x',
-    theta3: -45,
-    link_3_direction: 'z',
-    link_3_length: 15,
-};
+/**
+ * Configuration generated from the unified robot definition
+ * This ensures all default values and limits come from a single source
+ */
 
-// Shared configuration values
-const ANGLE_LIMITS = { min: -180, max: 180 };
-const LENGTH_LIMITS = { min: 0, max: 20 };
-
-// GUI configuration
-export const guiConfig = {
-    angles: {
-        theta1: ANGLE_LIMITS,
-        theta2: ANGLE_LIMITS,
-        theta3: ANGLE_LIMITS,
-    },
-    lengths: {
-        link_0_length: LENGTH_LIMITS,
-        link_1_length: LENGTH_LIMITS,
-        link_2_length: LENGTH_LIMITS,
-        link_3_length: LENGTH_LIMITS,
-    },
-    orientations: {
-        axisOptions: ['x', 'y', 'z'] as const,
-    },
+// Generate default user inputs from robot definition
+export const defaultUserInputs: UserInputs = (() => {
+    const inputs: any = {};
     
-    // Configuration constants for easy maintenance
-    limits: {
-        angle: ANGLE_LIMITS,
-        length: LENGTH_LIMITS,
-    },
-};
+    // Add all link parameters
+    for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
+        const link = RobotDefinitionUtils.getLinkDefinition(i);
+        inputs[RobotDefinitionUtils.getLinkDirectionKey(i)] = link.direction;
+        inputs[RobotDefinitionUtils.getLinkLengthKey(i)] = link.defaultLength;
+    }
+    
+    // Add all joint parameters
+    for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
+        const joint = RobotDefinitionUtils.getJointDefinition(i);
+        inputs[RobotDefinitionUtils.getJointDirectionKey(i)] = joint.direction;
+        inputs[RobotDefinitionUtils.getJointAngleKey(i)] = joint.defaultAngle;
+    }
+    
+    return inputs as UserInputs;
+})();
+
+// Generate GUI configuration from robot definition
+export const guiConfig = (() => {
+    const angles: any = {};
+    const lengths: any = {};
+    
+    // Generate angle limits for all joints
+    for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
+        const joint = RobotDefinitionUtils.getJointDefinition(i);
+        const angleKey = RobotDefinitionUtils.getJointAngleKey(i);
+        angles[angleKey] = joint.angleRange;
+    }
+    
+    // Generate length limits for all links
+    for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
+        const link = RobotDefinitionUtils.getLinkDefinition(i);
+        const lengthKey = RobotDefinitionUtils.getLinkLengthKey(i);
+        lengths[lengthKey] = link.lengthRange;
+    }
+    
+    return {
+        angles,
+        lengths,
+        orientations: {
+            axisOptions: ['x', 'y', 'z'] as const,
+        },
+        
+        // Configuration constants for easy maintenance
+        limits: {
+            angle: { min: -180, max: 180 },
+            length: { min: 0, max: 20 },
+        },
+    };
+})();

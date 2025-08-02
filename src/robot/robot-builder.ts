@@ -10,6 +10,7 @@ import {
 import { type Axis } from '../shared/types';
 import { type UserInputs } from '../user-inputs';
 import { RobotComponents } from './types';
+import { RobotDefinitionUtils } from './robot-definition';
 
 export class RobotBuilder {
     private components: RobotComponents | null = null;
@@ -41,10 +42,33 @@ export class RobotBuilder {
             throw new Error('Robot must be built before updating joint angles');
         }
 
-        this.updateJointRotation(this.components.joint1frame, userInputs.theta1, userInputs.joint1_direction);
-        this.updateJointRotation(this.components.joint2frame, userInputs.theta2, userInputs.joint2_direction);
-        this.updateJointRotation(this.components.joint3frame, userInputs.theta3, userInputs.joint3_direction);
-    }
+        // Dynamically update all joint angles based on robot definition
+        const jointFrames = [
+            this.components.joint1frame,
+            this.components.joint2frame,
+            this.components.joint3frame,
+            this.components.joint4frame,
+            this.components.joint5frame,
+            this.components.joint6frame,
+        ];
+        
+        const numJoints = Math.min(RobotDefinitionUtils.getNumJoints(), jointFrames.length);
+        for (let i = 0; i < numJoints; i++) {
+            const angleKey = RobotDefinitionUtils.getJointAngleKey(i) as keyof UserInputs;
+            const directionKey = RobotDefinitionUtils.getJointDirectionKey(i) as keyof UserInputs;
+            
+            const angle = userInputs[angleKey];
+            const direction = userInputs[directionKey];
+            
+            if (typeof angle !== 'number') {
+                throw new Error(`Invalid angle value for ${angleKey}: ${angle}`);
+            }
+            if (direction !== 'x' && direction !== 'y' && direction !== 'z') {
+                throw new Error(`Invalid direction value for ${directionKey}: ${direction}`);
+            }
+            
+            this.updateJointRotation(jointFrames[i], angle, direction);
+        }    }
 
     public getComponents(): RobotComponents | null {
         return this.components;
@@ -90,13 +114,40 @@ export class RobotBuilder {
         const joint3frame = createJointFrame(userInputs.theta3, userInputs.joint3_direction, link2end);
         createJoint(link2end, userInputs.joint3_direction);
 
-        // Link 3 (end effector link)
+        // Link 3
         const link3origin = createLinkOrigin(userInputs.link_3_direction, joint3frame);
         createLink(userInputs.link_3_length, link3origin);
         const link3end = createLinkEndFrame(userInputs.link_3_length, link3origin);
+
+        // Joint 4
+        const joint4frame = createJointFrame(userInputs.theta4, userInputs.joint4_direction, link3end);
+        createJoint(link3end, userInputs.joint4_direction);
+
+        // Link 4
+        const link4origin = createLinkOrigin(userInputs.link_4_direction, joint4frame);
+        createLink(userInputs.link_4_length, link4origin);
+        const link4end = createLinkEndFrame(userInputs.link_4_length, link4origin);
+
+        // Joint 5
+        const joint5frame = createJointFrame(userInputs.theta5, userInputs.joint5_direction, link4end);
+        createJoint(link4end, userInputs.joint5_direction);
+
+        // Link 5
+        const link5origin = createLinkOrigin(userInputs.link_5_direction, joint5frame);
+        createLink(userInputs.link_5_length, link5origin);
+        const link5end = createLinkEndFrame(userInputs.link_5_length, link5origin);
         
+        // Joint 6
+        const joint6frame = createJointFrame(userInputs.theta6, userInputs.joint6_direction, link5end);
+        createJoint(link5end, userInputs.joint6_direction);
+
+        // Link 6
+        const link6origin = createLinkOrigin(userInputs.link_6_direction, joint6frame);
+        createLink(userInputs.link_6_length, link6origin);
+        const link6end = createLinkEndFrame(userInputs.link_6_length, link6origin);
+
         // TCP (Tool Center Point)
-        const tcp = createTCPframe(link3end);
+        const tcp = createTCPframe(link6end);
 
         return {
             link0origin,
@@ -110,6 +161,9 @@ export class RobotBuilder {
             joint1frame,
             joint2frame,
             joint3frame,
+            joint4frame,
+            joint5frame,
+            joint6frame,
             tcp,
         };
     }
