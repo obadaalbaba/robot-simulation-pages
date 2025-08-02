@@ -1,6 +1,7 @@
 import * as dat from 'dat.gui';
 import { UserInputs } from './types';
 import { guiConfig } from './config';
+import { RobotDefinitionUtils } from '../robot/robot-definition';
 
 export class UserInputsGUI {
     private gui: dat.GUI;
@@ -31,12 +32,15 @@ export class UserInputsGUI {
             console.warn('Angles configuration missing');
             return;
         }
-        this.anglesFolder.add(this.userInputs, 'theta1', angles.theta1.min, angles.theta1.max);
-        this.anglesFolder.add(this.userInputs, 'theta2', angles.theta2.min, angles.theta2.max);
-        this.anglesFolder.add(this.userInputs, 'theta3', angles.theta3.min, angles.theta3.max);
-        this.anglesFolder.add(this.userInputs, 'theta4', angles.theta4.min, angles.theta4.max);
-        this.anglesFolder.add(this.userInputs, 'theta5', angles.theta5.min, angles.theta5.max);
-        this.anglesFolder.add(this.userInputs, 'theta6', angles.theta6.min, angles.theta6.max);
+        
+        // Dynamically add all joint angle controls based on robot definition
+        for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
+            const angleKey = RobotDefinitionUtils.getJointAngleKey(i) as keyof UserInputs;
+            const limits = angles[angleKey];
+            if (limits) {
+                this.anglesFolder.add(this.userInputs, angleKey, limits.min, limits.max);
+            }
+        }
         
         this.anglesFolder.open();
     }
@@ -50,8 +54,11 @@ export class UserInputsGUI {
 
         const { lengths } = guiConfig;
         
-        // Validate each required length property exists and has min/max values
-        const requiredLengthProperties = ['link_0_length', 'link_1_length', 'link_2_length', 'link_3_length', 'link_4_length', 'link_5_length', 'link_6_length'] as const;
+        // Generate required length properties from robot definition
+        const requiredLengthProperties = [];
+        for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
+            requiredLengthProperties.push(RobotDefinitionUtils.getLinkLengthKey(i));
+        }
         
         for (const property of requiredLengthProperties) {
             if (!lengths[property]) {
@@ -75,13 +82,14 @@ export class UserInputsGUI {
         }
 
         try {
-            this.lengthFolder.add(this.userInputs, 'link_0_length', lengths.link_0_length.min, lengths.link_0_length.max);
-            this.lengthFolder.add(this.userInputs, 'link_1_length', lengths.link_1_length.min, lengths.link_1_length.max);
-            this.lengthFolder.add(this.userInputs, 'link_2_length', lengths.link_2_length.min, lengths.link_2_length.max);
-            this.lengthFolder.add(this.userInputs, 'link_3_length', lengths.link_3_length.min, lengths.link_3_length.max);
-            this.lengthFolder.add(this.userInputs, 'link_4_length', lengths.link_4_length.min, lengths.link_4_length.max);
-            this.lengthFolder.add(this.userInputs, 'link_5_length', lengths.link_5_length.min, lengths.link_5_length.max);
-            this.lengthFolder.add(this.userInputs, 'link_6_length', lengths.link_6_length.min, lengths.link_6_length.max);
+            // Dynamically add all link length controls based on robot definition
+            for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
+                const lengthKey = RobotDefinitionUtils.getLinkLengthKey(i) as keyof UserInputs;
+                const limits = lengths[lengthKey];
+                if (limits) {
+                    this.lengthFolder.add(this.userInputs, lengthKey, limits.min, limits.max);
+                }
+            }
             
             this.lengthFolder.open();
         } catch (error) {
@@ -95,13 +103,11 @@ export class UserInputsGUI {
         const fallbackLengthLimits = { min: 0, max: 20 };
         
         try {
-            this.lengthFolder.add(this.userInputs, 'link_0_length', fallbackLengthLimits.min, fallbackLengthLimits.max);
-            this.lengthFolder.add(this.userInputs, 'link_1_length', fallbackLengthLimits.min, fallbackLengthLimits.max);
-            this.lengthFolder.add(this.userInputs, 'link_2_length', fallbackLengthLimits.min, fallbackLengthLimits.max);
-            this.lengthFolder.add(this.userInputs, 'link_3_length', fallbackLengthLimits.min, fallbackLengthLimits.max);
-            this.lengthFolder.add(this.userInputs, 'link_4_length', fallbackLengthLimits.min, fallbackLengthLimits.max);
-            this.lengthFolder.add(this.userInputs, 'link_5_length', fallbackLengthLimits.min, fallbackLengthLimits.max);
-            this.lengthFolder.add(this.userInputs, 'link_6_length', fallbackLengthLimits.min, fallbackLengthLimits.max);
+            // Dynamically add all link length controls with fallback limits
+            for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
+                const lengthKey = RobotDefinitionUtils.getLinkLengthKey(i) as keyof UserInputs;
+                this.lengthFolder.add(this.userInputs, lengthKey, fallbackLengthLimits.min, fallbackLengthLimits.max);
+            }
             
             this.lengthFolder.open();
             console.log('GUI: Successfully set up lengths folder with fallback defaults.');
@@ -128,19 +134,17 @@ export class UserInputsGUI {
         }
 
         try {
-            this.orientationsFolder.add(this.userInputs, 'link_0_direction', orientations.axisOptions);
-            this.orientationsFolder.add(this.userInputs, 'joint1_direction', orientations.axisOptions);
-            this.orientationsFolder.add(this.userInputs, 'link_1_direction', orientations.axisOptions);
-            this.orientationsFolder.add(this.userInputs, 'joint2_direction', orientations.axisOptions);
-            this.orientationsFolder.add(this.userInputs, 'link_2_direction', orientations.axisOptions);
-            this.orientationsFolder.add(this.userInputs, 'joint3_direction', orientations.axisOptions);
-            this.orientationsFolder.add(this.userInputs, 'link_3_direction', orientations.axisOptions);
-            this.orientationsFolder.add(this.userInputs, 'joint4_direction', orientations.axisOptions);
-            this.orientationsFolder.add(this.userInputs, 'link_4_direction', orientations.axisOptions);
-            this.orientationsFolder.add(this.userInputs, 'joint5_direction', orientations.axisOptions);
-            this.orientationsFolder.add(this.userInputs, 'link_5_direction', orientations.axisOptions);
-            this.orientationsFolder.add(this.userInputs, 'joint6_direction', orientations.axisOptions);
-            this.orientationsFolder.add(this.userInputs, 'link_6_direction', orientations.axisOptions);
+            // Dynamically add all link direction controls
+            for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
+                const linkDirectionKey = RobotDefinitionUtils.getLinkDirectionKey(i) as keyof UserInputs;
+                this.orientationsFolder.add(this.userInputs, linkDirectionKey, orientations.axisOptions);
+            }
+            
+            // Dynamically add all joint direction controls
+            for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
+                const jointDirectionKey = RobotDefinitionUtils.getJointDirectionKey(i) as keyof UserInputs;
+                this.orientationsFolder.add(this.userInputs, jointDirectionKey, orientations.axisOptions);
+            }
             
             this.orientationsFolder.open();
         } catch (error) {
@@ -154,19 +158,17 @@ export class UserInputsGUI {
         const fallbackAxisOptions = ['x', 'y', 'z'] as const;
         
         try {
-            this.orientationsFolder.add(this.userInputs, 'link_0_direction', fallbackAxisOptions);
-            this.orientationsFolder.add(this.userInputs, 'joint1_direction', fallbackAxisOptions);
-            this.orientationsFolder.add(this.userInputs, 'link_1_direction', fallbackAxisOptions);
-            this.orientationsFolder.add(this.userInputs, 'joint2_direction', fallbackAxisOptions);
-            this.orientationsFolder.add(this.userInputs, 'link_2_direction', fallbackAxisOptions);
-            this.orientationsFolder.add(this.userInputs, 'joint3_direction', fallbackAxisOptions);
-            this.orientationsFolder.add(this.userInputs, 'link_3_direction', fallbackAxisOptions);
-            this.orientationsFolder.add(this.userInputs, 'joint4_direction', fallbackAxisOptions);
-            this.orientationsFolder.add(this.userInputs, 'link_4_direction', fallbackAxisOptions);
-            this.orientationsFolder.add(this.userInputs, 'joint5_direction', fallbackAxisOptions);
-            this.orientationsFolder.add(this.userInputs, 'link_5_direction', fallbackAxisOptions);
-            this.orientationsFolder.add(this.userInputs, 'joint6_direction', fallbackAxisOptions);
-            this.orientationsFolder.add(this.userInputs, 'link_6_direction', fallbackAxisOptions);
+            // Dynamically add all link direction controls with fallback
+            for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
+                const linkDirectionKey = RobotDefinitionUtils.getLinkDirectionKey(i) as keyof UserInputs;
+                this.orientationsFolder.add(this.userInputs, linkDirectionKey, fallbackAxisOptions);
+            }
+            
+            // Dynamically add all joint direction controls with fallback
+            for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
+                const jointDirectionKey = RobotDefinitionUtils.getJointDirectionKey(i) as keyof UserInputs;
+                this.orientationsFolder.add(this.userInputs, jointDirectionKey, fallbackAxisOptions);
+            }
             
             this.orientationsFolder.open();
             console.log('GUI: Successfully set up orientations folder with fallback defaults.');

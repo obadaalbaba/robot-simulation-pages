@@ -10,6 +10,7 @@ import {
 import { type Axis } from '../shared/types';
 import { type UserInputs } from '../user-inputs';
 import { RobotComponents } from './types';
+import { RobotDefinitionUtils } from './robot-definition';
 
 export class RobotBuilder {
     private components: RobotComponents | null = null;
@@ -41,12 +42,25 @@ export class RobotBuilder {
             throw new Error('Robot must be built before updating joint angles');
         }
 
-        this.updateJointRotation(this.components.joint1frame, userInputs.theta1, userInputs.joint1_direction);
-        this.updateJointRotation(this.components.joint2frame, userInputs.theta2, userInputs.joint2_direction);
-        this.updateJointRotation(this.components.joint3frame, userInputs.theta3, userInputs.joint3_direction);
-        this.updateJointRotation(this.components.joint4frame, userInputs.theta4, userInputs.joint4_direction);
-        this.updateJointRotation(this.components.joint5frame, userInputs.theta5, userInputs.joint5_direction);
-        this.updateJointRotation(this.components.joint6frame, userInputs.theta6, userInputs.joint6_direction);
+        // Dynamically update all joint angles based on robot definition
+        const jointFrames = [
+            this.components.joint1frame,
+            this.components.joint2frame,
+            this.components.joint3frame,
+            this.components.joint4frame,
+            this.components.joint5frame,
+            this.components.joint6frame,
+        ];
+        
+        for (let i = 0; i < RobotDefinitionUtils.getNumJoints() && i < jointFrames.length; i++) {
+            const angleKey = RobotDefinitionUtils.getJointAngleKey(i) as keyof UserInputs;
+            const directionKey = RobotDefinitionUtils.getJointDirectionKey(i) as keyof UserInputs;
+            
+            const angle = userInputs[angleKey] as number;
+            const direction = userInputs[directionKey] as Axis;
+            
+            this.updateJointRotation(jointFrames[i], angle, direction);
+        }
     }
 
     public getComponents(): RobotComponents | null {
