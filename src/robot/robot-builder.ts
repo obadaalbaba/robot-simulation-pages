@@ -52,16 +52,23 @@ export class RobotBuilder {
             this.components.joint6frame,
         ];
         
-        for (let i = 0; i < RobotDefinitionUtils.getNumJoints() && i < jointFrames.length; i++) {
+        const numJoints = Math.min(RobotDefinitionUtils.getNumJoints(), jointFrames.length);
+        for (let i = 0; i < numJoints; i++) {
             const angleKey = RobotDefinitionUtils.getJointAngleKey(i) as keyof UserInputs;
             const directionKey = RobotDefinitionUtils.getJointDirectionKey(i) as keyof UserInputs;
             
-            const angle = userInputs[angleKey] as number;
-            const direction = userInputs[directionKey] as Axis;
+            const angle = userInputs[angleKey];
+            const direction = userInputs[directionKey];
+            
+            if (typeof angle !== 'number') {
+                throw new Error(`Invalid angle value for ${angleKey}: ${angle}`);
+            }
+            if (direction !== 'x' && direction !== 'y' && direction !== 'z') {
+                throw new Error(`Invalid direction value for ${directionKey}: ${direction}`);
+            }
             
             this.updateJointRotation(jointFrames[i], angle, direction);
-        }
-    }
+        }    }
 
     public getComponents(): RobotComponents | null {
         return this.components;
