@@ -1,4 +1,5 @@
 import { UserInputs, StructuralParams } from './types';
+import { type Axis } from '../shared/types';
 import { defaultUserInputs } from './config';
 import { UserInputsGUI } from './gui';
 import { RobotDefinitionUtils } from '../robot/robot-definition';
@@ -89,21 +90,21 @@ export class UserInputManager {
     }
 
     private extractStructuralParams(inputs: UserInputs): StructuralParams {
-        const params: any = {};
+        const params: Partial<StructuralParams> = {};
         
         // Extract all link parameters
         for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
             const linkDirectionKey = RobotDefinitionUtils.getLinkDirectionKey(i);
             const linkLengthKey = RobotDefinitionUtils.getLinkLengthKey(i);
             
-            params[linkDirectionKey] = (inputs as any)[linkDirectionKey];
-            params[linkLengthKey] = (inputs as any)[linkLengthKey];
+            params[linkDirectionKey] = inputs[linkDirectionKey as keyof UserInputs] as Axis;
+            params[linkLengthKey] = inputs[linkLengthKey as keyof UserInputs] as number;
         }
         
         // Extract all joint direction parameters (angles are not structural)
         for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
             const jointDirectionKey = RobotDefinitionUtils.getJointDirectionKey(i);
-            params[jointDirectionKey] = (inputs as any)[jointDirectionKey];
+            params[jointDirectionKey] = inputs[jointDirectionKey as keyof UserInputs] as Axis;
         }
         
         return params as StructuralParams;

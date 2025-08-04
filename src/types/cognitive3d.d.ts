@@ -24,7 +24,7 @@ declare module '@cognitive3d/analytics' {
   }
 
   interface C3DSensor {
-    recordSensor(sensorName: string, value: any): void;
+    recordSensor(sensorName: string, value: string | number | boolean): void;
   }
 
   class C3DAnalytics {
@@ -34,8 +34,8 @@ declare module '@cognitive3d/analytics' {
     fpsTracker: C3DFPSTracker;
     setDeviceProperty(key: string, value: string): void;
     setScene(sceneName: string): void;
-    startSession(xrSession?: any): Promise<boolean>;
-    endSession(): Promise<any>;
+    startSession(xrSession?: Partial<XRSession>): Promise<boolean>;
+    endSession(): Promise<void>;
     isSessionActive(): boolean;
     getApiKey(): string;
     getSceneId(): string;

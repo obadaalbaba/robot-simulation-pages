@@ -1,6 +1,13 @@
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { Scene } from 'three';
 
+interface GLTFBuffer {
+    uri?: string;
+    byteLength?: number;
+}
+
+
+
 /**
  * Utility class for exporting Three.js scenes to glTF format for Cognitive3D platform
  */
@@ -25,7 +32,7 @@ export class SceneExporter {
         
         this.exporter.parse(
             scene,
-            (result: any) => {
+            (result: ArrayBuffer | { [key: string]: unknown }) => {
                 console.log('✅ Scene export completed');
                 console.log('Export result type:', typeof result);
                 console.log('Export result:', result);
@@ -38,11 +45,13 @@ export class SceneExporter {
                     // JSON format - create both .gltf and .bin files
                     console.log('📄 Got JSON format');
                     
+                    const gltfData = result as { buffers?: GLTFBuffer[]; [key: string]: unknown };
+                    
                     // Check if there are buffers that should create .bin files
-                    if (result.buffers && result.buffers.length > 0) {
-                        console.log(`📊 Found ${result.buffers.length} buffer(s)`);
+                    if (gltfData.buffers && gltfData.buffers.length > 0) {
+                        console.log(`📊 Found ${gltfData.buffers.length} buffer(s)`);
                         
-                        result.buffers.forEach((buffer: any, index: number) => {
+                        gltfData.buffers.forEach((buffer: GLTFBuffer, index: number) => {
                             if (buffer.uri && buffer.uri.startsWith('data:')) {
                                 try {
                                     // Convert embedded base64 to separate .bin file
@@ -85,10 +94,10 @@ export class SceneExporter {
                         this.saveArrayBuffer(emptyBuffer, 'scene.bin');
                         
                         // Add a buffer reference to the glTF
-                        if (!result.buffers) {
-                            result.buffers = [];
+                        if (!gltfData.buffers) {
+                            gltfData.buffers = [];
                         }
-                        result.buffers.push({
+                        gltfData.buffers.push({
                             uri: 'scene.bin',
                             byteLength: 8
                         });
@@ -96,7 +105,7 @@ export class SceneExporter {
                     }
                     
                     // Save the .gltf file
-                    const output = JSON.stringify(result, null, 2);
+                    const output = JSON.stringify(gltfData, null, 2);
                     this.saveString(output, 'scene.gltf');
                     console.log('💾 Created scene.gltf');
                     

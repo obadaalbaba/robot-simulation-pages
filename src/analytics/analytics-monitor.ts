@@ -2,6 +2,8 @@ import C3DAnalytics from '@cognitive3d/analytics';
 import C3DThreeAdapter from '@cognitive3d/analytics/adapters/threejs';
 import * as THREE from 'three';
 
+
+
 export interface AnalyticsMonitorConfig {
     apiKey: string;
     sceneName: string;
@@ -191,27 +193,27 @@ export class AnalyticsMonitor {
         console.log(`🎯 Gaze recording frequency set to ${1000/this.gazeRecordingInterval}fps`);
     }
 
-    private createMockXRSession(): any {
+    private createMockXRSession(): Partial<XRSession> {
         // Minimal mock XR session - only implement methods that are actually used
         const mockSession = {
             // Core properties that may be checked
             inputSources: [],
-            environmentBlendMode: 'opaque',
-            visibilityState: 'visible',
+            environmentBlendMode: 'opaque' as XREnvironmentBlendMode, // eslint-disable-line no-undef
+            visibilityState: 'visible' as XRVisibilityState, // eslint-disable-line no-undef
             enabledFeatures: [], // SDK expects array for .includes() calls
             
             // Event handling - SDK tries to add listeners
-            addEventListener: (_type: string, _listener: any) => {
+            addEventListener: () => {
                 // No-op but SDK expects this method to exist
             },
             
             // Animation frame handling - REQUIRED by C3D SDK
-            requestAnimationFrame: (callback: (time: number, frame?: any) => void) => {
+            requestAnimationFrame: (callback: XRFrameRequestCallback) => { // eslint-disable-line no-undef
                 return requestAnimationFrame((time) => {
                     const mockFrame = {
                         session: mockSession,
                         getViewerPose: () => null, // Minimal frame interface
-                    };
+                    } as unknown as XRFrame;
                     callback(time, mockFrame);
                 });
             },
@@ -224,8 +226,8 @@ export class AnalyticsMonitor {
             requestReferenceSpace: (type: string) => {
                 console.log(`🔧 Mock XR: Using "${type}" reference space`);
                 return Promise.resolve({
-                    getOffsetReferenceSpace: (_transform: any) => ({}),
-                });
+                    getOffsetReferenceSpace: () => ({}),
+                } as unknown as XRReferenceSpace); // eslint-disable-line no-undef
             },
             
             // Session cleanup - USED when ending session

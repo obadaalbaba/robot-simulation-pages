@@ -8,7 +8,7 @@ import { RobotDefinitionUtils } from '../robot/robot-definition';
 
 // Generate default user inputs from robot definition
 export const defaultUserInputs: UserInputs = (() => {
-    const inputs: any = {};
+    const inputs: Partial<UserInputs> = {};
     
     // Add all link parameters
     for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
@@ -29,8 +29,8 @@ export const defaultUserInputs: UserInputs = (() => {
 
 // Generate GUI configuration from robot definition
 export const guiConfig = (() => {
-    const angles: any = {};
-    const lengths: any = {};
+    const angles: Record<string, { min: number; max: number }> = {};
+    const lengths: Record<string, { min: number; max: number }> = {};
     
     // Generate angle limits for all joints
     for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
