@@ -16,6 +16,11 @@ export class SceneExporter {
      * @param scene The Three.js scene to export
      */
     public exportForCognitive3D(scene: Scene): void {
+        // Validate scene parameter
+        if (scene === null || scene === undefined) {
+            throw new Error('Scene parameter cannot be null or undefined');
+        }
+        
         console.log('🚀 Starting scene export for Cognitive3D...');
         
         this.exporter.parse(
@@ -37,23 +42,36 @@ export class SceneExporter {
                     if (result.buffers && result.buffers.length > 0) {
                         console.log(`📊 Found ${result.buffers.length} buffer(s)`);
                         
-                        result.buffers.forEach((buffer: any) => {
+                        result.buffers.forEach((buffer: any, index: number) => {
                             if (buffer.uri && buffer.uri.startsWith('data:')) {
-                                // Convert embedded base64 to separate .bin file
-                                const base64Data = buffer.uri.split(',')[1];
-                                const binaryData = atob(base64Data);
-                                const bytes = new Uint8Array(binaryData.length);
-                                for (let i = 0; i < binaryData.length; i++) {
-                                    bytes[i] = binaryData.charCodeAt(i);
+                                try {
+                                    // Convert embedded base64 to separate .bin file
+                                    const base64Data = buffer.uri.split(',')[1];
+                                    if (!base64Data) {
+                                        throw new Error('No base64 data found in buffer URI');
+                                    }
+                                    
+                                    const binaryData = atob(base64Data);
+                                    const bytes = new Uint8Array(binaryData.length);
+                                    for (let i = 0; i < binaryData.length; i++) {
+                                        bytes[i] = binaryData.charCodeAt(i);
+                                    }
+                                    
+                                    // Generate unique filename for each buffer
+                                    const timestamp = Date.now();
+                                    const binFilename = `scene_buffer_${index}_${timestamp}.bin`;
+                                    
+                                    // Update the buffer URI to point to external file
+                                    buffer.uri = binFilename;
+                                    
+                                    // Save the binary file
+                                    this.saveArrayBuffer(bytes.buffer, binFilename);
+                                    console.log(`💾 Created ${binFilename} (${bytes.length} bytes)`);
+                                } catch (error) {
+                                    console.error(`❌ Failed to decode base64 buffer ${index}:`, error);
+                                    console.warn(`Skipping buffer ${index} due to decoding error`);
+                                    // Keep the original data URI as fallback
                                 }
-                                
-                                // Update the buffer URI to point to external file
-                                const binFilename = `scene.bin`;
-                                buffer.uri = binFilename;
-                                
-                                // Save the binary file
-                                this.saveArrayBuffer(bytes.buffer, binFilename);
-                                console.log(`💾 Created ${binFilename} (${bytes.length} bytes)`);
                             } else if (buffer.uri) {
                                 console.log(`📁 Buffer already references external file: ${buffer.uri}`);
                             }
