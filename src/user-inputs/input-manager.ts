@@ -1,5 +1,4 @@
 import { UserInputs, StructuralParams } from './types';
-import { type Axis } from '../shared/types';
 import { defaultUserInputs } from './config';
 import { UserInputsGUI } from './gui';
 import { RobotDefinitionUtils } from '../robot/robot-definition';
@@ -68,20 +67,20 @@ export class UserInputManager {
 
         // Dynamically check all link parameters
         for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
-            const linkDirectionKey = RobotDefinitionUtils.getLinkDirectionKey(i) as keyof StructuralParams;
-            const linkLengthKey = RobotDefinitionUtils.getLinkLengthKey(i) as keyof StructuralParams;
+            const linkDirectionKey = `link_${i}_direction`;
+            const linkLengthKey = `link_${i}_length`;
             
-            if (previous[linkDirectionKey] !== current[linkDirectionKey] ||
-                previous[linkLengthKey] !== current[linkLengthKey]) {
+            if ((previous as any)[linkDirectionKey] !== (current as any)[linkDirectionKey] ||
+                (previous as any)[linkLengthKey] !== (current as any)[linkLengthKey]) {
                 return true;
             }
         }
         
         // Dynamically check all joint direction parameters
         for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
-            const jointDirectionKey = RobotDefinitionUtils.getJointDirectionKey(i) as keyof StructuralParams;
+            const jointDirectionKey = `joint${i + 1}_direction`;
             
-            if (previous[jointDirectionKey] !== current[jointDirectionKey]) {
+            if ((previous as any)[jointDirectionKey] !== (current as any)[jointDirectionKey]) {
                 return true;
             }
         }
@@ -90,21 +89,21 @@ export class UserInputManager {
     }
 
     private extractStructuralParams(inputs: UserInputs): StructuralParams {
-        const params: Partial<StructuralParams> = {};
+        const params: any = {};
         
         // Extract all link parameters
         for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
-            const linkDirectionKey = RobotDefinitionUtils.getLinkDirectionKey(i);
-            const linkLengthKey = RobotDefinitionUtils.getLinkLengthKey(i);
+            const linkDirectionKey = `link_${i}_direction`;
+            const linkLengthKey = `link_${i}_length`;
             
-            params[linkDirectionKey] = inputs[linkDirectionKey as keyof UserInputs] as Axis;
-            params[linkLengthKey] = inputs[linkLengthKey as keyof UserInputs] as number;
+            params[linkDirectionKey] = (inputs as any)[linkDirectionKey];
+            params[linkLengthKey] = (inputs as any)[linkLengthKey];
         }
         
         // Extract all joint direction parameters (angles are not structural)
         for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
-            const jointDirectionKey = RobotDefinitionUtils.getJointDirectionKey(i);
-            params[jointDirectionKey] = inputs[jointDirectionKey as keyof UserInputs] as Axis;
+            const jointDirectionKey = `joint${i + 1}_direction`;
+            params[jointDirectionKey] = (inputs as any)[jointDirectionKey];
         }
         
         return params as StructuralParams;

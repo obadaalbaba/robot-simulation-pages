@@ -12,13 +12,8 @@ declare module '@cognitive3d/analytics' {
     recordGaze(position: number[], rotation: number[], gaze: number[]): void;
   }
 
-  interface FPSMetrics {
-    avg: number;
-    '1pl': number;
-  }
-
   interface C3DFPSTracker {
-    start(callback: (metrics: FPSMetrics) => void): void;
+    start(callback: (metrics: { avg: number; '1pl': number }) => void): void;
     stop(): void;
     lastDeltaTime: number;
   }

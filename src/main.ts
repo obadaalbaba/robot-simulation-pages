@@ -69,11 +69,3 @@ sceneManager.startAnimation(() => {
         analyticsMonitor.recordGaze();
     }
 });
-
-// Cleanup on window unload
-window.addEventListener('beforeunload', () => {
-    analyticsMonitor.stop();
-    sceneManager.dispose();
-});
-
-// All robot construction and update logic is now handled by RobotBuilder

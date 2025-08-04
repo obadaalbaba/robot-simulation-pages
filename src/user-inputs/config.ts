@@ -8,20 +8,21 @@ import { RobotDefinitionUtils } from '../robot/robot-definition';
 
 // Generate default user inputs from robot definition
 export const defaultUserInputs: UserInputs = (() => {
-    const inputs: Partial<UserInputs> = {};
+    // Instead of dynamic assignment, build the object explicitly
+    const inputs: any = {};
     
     // Add all link parameters
     for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
         const link = RobotDefinitionUtils.getLinkDefinition(i);
-        inputs[RobotDefinitionUtils.getLinkDirectionKey(i)] = link.direction;
-        inputs[RobotDefinitionUtils.getLinkLengthKey(i)] = link.defaultLength;
+        inputs[`link_${i}_direction`] = link.direction;
+        inputs[`link_${i}_length`] = link.defaultLength;
     }
     
     // Add all joint parameters
     for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
         const joint = RobotDefinitionUtils.getJointDefinition(i);
-        inputs[RobotDefinitionUtils.getJointDirectionKey(i)] = joint.direction;
-        inputs[RobotDefinitionUtils.getJointAngleKey(i)] = joint.defaultAngle;
+        inputs[`joint${i + 1}_direction`] = joint.direction;
+        inputs[`theta${i + 1}`] = joint.defaultAngle;
     }
     
     return inputs as UserInputs;

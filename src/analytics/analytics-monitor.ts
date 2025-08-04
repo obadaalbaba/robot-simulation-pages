@@ -20,7 +20,7 @@ export class AnalyticsMonitor {
     private c3d: C3DAnalytics;
     private adapter: C3DThreeAdapter;
     private isMonitoring: boolean = false;
-    private fpsDisplay: HTMLElement | null = null;
+    private fpsDisplay: HTMLElement = document.createElement('div');
     private onFPSUpdate?: (metrics: FPSMetrics) => void;
     private camera?: THREE.PerspectiveCamera;
     private gazeTrackingEnabled: boolean = false;
@@ -51,7 +51,6 @@ export class AnalyticsMonitor {
     }
 
     private createFPSDisplay(): void {
-        this.fpsDisplay = document.createElement('div');
         this.fpsDisplay.id = 'fps-monitor';
         this.fpsDisplay.style.cssText = `
             position: fixed;
@@ -73,18 +72,21 @@ export class AnalyticsMonitor {
         document.body.appendChild(this.fpsDisplay);
     }
 
-    private updateFPSDisplay(metrics: FPSMetrics): void {
-        if (this.fpsDisplay) {
-            this.fpsDisplay.innerHTML = `
-                FPS: ${metrics.avg.toFixed(1)}<br>
-                1%L: ${metrics['1pl'].toFixed(1)}
-            `;
+    private ensureFPSDisplay(): HTMLElement {
+        if (!this.fpsDisplay) {
+            this.createFPSDisplay();
         }
+        return this.fpsDisplay!;
+    }
+
+    private updateFPSDisplay(metrics: FPSMetrics): void {
+        this.ensureFPSDisplay().innerHTML = `
+            FPS: ${metrics.avg.toFixed(1)}<br>
+            1%L: ${metrics['1pl'].toFixed(1)}
+        `;
         
         // Call external callback if provided
-        if (this.onFPSUpdate) {
-            this.onFPSUpdate(metrics);
-        }
+        this.onFPSUpdate?.(metrics);
     }
 
     public async start(camera?: THREE.PerspectiveCamera): Promise<void> {
@@ -120,44 +122,6 @@ export class AnalyticsMonitor {
         }
 
         this.isMonitoring = true;
-    }
-
-    public stop(): void {
-        if (!this.isMonitoring) return;
-
-        if (this.c3d.isSessionActive()) {
-            this.c3d.endSession().catch(console.error);
-        }
-
-        // Remove FPS display
-        if (this.fpsDisplay && this.fpsDisplay.parentNode) {
-            this.fpsDisplay.parentNode.removeChild(this.fpsDisplay);
-            this.fpsDisplay = null;
-        }
-
-        this.isMonitoring = false;
-    }
-
-    public setFPSCallback(callback: (metrics: FPSMetrics) => void): void {
-        this.onFPSUpdate = callback;
-    }
-
-    public showFPSDisplay(show: boolean = true): void {
-        if (this.fpsDisplay) {
-            this.fpsDisplay.style.display = show ? 'block' : 'none';
-        }
-    }
-
-    public hideFPSDisplay(): void {
-        this.showFPSDisplay(false);
-    }
-
-    public getAdapter(): C3DThreeAdapter {
-        return this.adapter;
-    }
-
-    public isActive(): boolean {
-        return this.isMonitoring;
     }
 
     public recordGaze(): void {

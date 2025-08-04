@@ -70,15 +70,11 @@ export class RobotBuilder {
             this.updateJointRotation(jointFrames[i], angle, direction);
         }    }
 
-    public getComponents(): RobotComponents | null {
-        return this.components;
-    }
-
     public getTCP(): THREE.AxesHelper | null {
         return this.components?.tcp || null;
     }
 
-    public destroyRobot(): void {
+    private destroyRobot(): void {
         if (this.components) {
             // Remove the robot hierarchy from the world reference frame
             this.worldReferenceFrame.remove(this.components.link0origin);
