@@ -162,8 +162,8 @@ export class AnalyticsMonitor {
         const mockSession = {
             // Core properties that may be checked
             inputSources: [],
-            environmentBlendMode: 'opaque' as XREnvironmentBlendMode, // eslint-disable-line no-undef
-            visibilityState: 'visible' as XRVisibilityState, // eslint-disable-line no-undef
+            environmentBlendMode: 'opaque' as XREnvironmentBlendMode,
+            visibilityState: 'visible' as XRVisibilityState,
             enabledFeatures: [], // SDK expects array for .includes() calls
             
             // Event handling - SDK tries to add listeners
@@ -172,7 +172,7 @@ export class AnalyticsMonitor {
             },
             
             // Animation frame handling - REQUIRED by C3D SDK
-            requestAnimationFrame: (callback: XRFrameRequestCallback) => { // eslint-disable-line no-undef
+            requestAnimationFrame: (callback: XRFrameRequestCallback) => {
                 return requestAnimationFrame((time) => {
                     const mockFrame = {
                         session: mockSession,
@@ -191,7 +191,7 @@ export class AnalyticsMonitor {
                 console.log(`🔧 Mock XR: Using "${type}" reference space`);
                 return Promise.resolve({
                     getOffsetReferenceSpace: () => ({}),
-                } as unknown as XRReferenceSpace); // eslint-disable-line no-undef
+                } as unknown as XRReferenceSpace);
             },
             
             // Session cleanup - USED when ending session

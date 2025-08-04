@@ -16,16 +16,16 @@ if (missingVars.length > 0) {
     console.error('Missing required environment variables:', missingVars);
 }
 
-const sceneManager = new SceneManager();
+const hasValidCredentials = missingVars.length === 0 && 
+    import.meta.env.VITE_C3D_API_KEY !== 'your_api_key_here';
 const analyticsMonitor = new AnalyticsMonitor({
     apiKey: import.meta.env.VITE_C3D_API_KEY,
     sceneName: import.meta.env.VITE_C3D_SCENE_NAME,
     sceneId: import.meta.env.VITE_C3D_SCENE_ID,
     versionNumber: import.meta.env.VITE_C3D_VERSION
-});
+}); 
+const sceneManager = new SceneManager();
 const camera = sceneManager.getCamera();
-const hasValidCredentials = missingVars.length === 0 && 
-    import.meta.env.VITE_C3D_API_KEY !== 'your_api_key_here';
 
 if (hasValidCredentials) {
     analyticsMonitor.start(camera);
