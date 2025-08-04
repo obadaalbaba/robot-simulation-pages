@@ -1,4 +1,4 @@
-import { UserInputs } from './types';
+import { UserInputs, setDynamicProperty } from './types';
 import { RobotDefinitionUtils } from '../robot/robot-definition';
 
 /**
@@ -8,21 +8,20 @@ import { RobotDefinitionUtils } from '../robot/robot-definition';
 
 // Generate default user inputs from robot definition
 export const defaultUserInputs: UserInputs = (() => {
-    // Instead of dynamic assignment, build the object explicitly
-    const inputs: any = {};
+    const inputs = {} as Record<string, unknown>;
     
     // Add all link parameters
     for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
         const link = RobotDefinitionUtils.getLinkDefinition(i);
-        inputs[`link_${i}_direction`] = link.direction;
-        inputs[`link_${i}_length`] = link.defaultLength;
+        setDynamicProperty(inputs, `link_${i}_direction`, link.direction);
+        setDynamicProperty(inputs, `link_${i}_length`, link.defaultLength);
     }
     
     // Add all joint parameters
     for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
         const joint = RobotDefinitionUtils.getJointDefinition(i);
-        inputs[`joint${i + 1}_direction`] = joint.direction;
-        inputs[`theta${i + 1}`] = joint.defaultAngle;
+        setDynamicProperty(inputs, `joint${i + 1}_direction`, joint.direction);
+        setDynamicProperty(inputs, `theta${i + 1}`, joint.defaultAngle);
     }
     
     return inputs as UserInputs;

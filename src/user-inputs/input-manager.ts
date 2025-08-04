@@ -1,4 +1,4 @@
-import { UserInputs, StructuralParams } from './types';
+import { UserInputs, StructuralParams, getDynamicProperty, setDynamicProperty } from './types';
 import { defaultUserInputs } from './config';
 import { UserInputsGUI } from './gui';
 import { RobotDefinitionUtils } from '../robot/robot-definition';
@@ -70,8 +70,8 @@ export class UserInputManager {
             const linkDirectionKey = `link_${i}_direction`;
             const linkLengthKey = `link_${i}_length`;
             
-            if ((previous as any)[linkDirectionKey] !== (current as any)[linkDirectionKey] ||
-                (previous as any)[linkLengthKey] !== (current as any)[linkLengthKey]) {
+            if (getDynamicProperty(previous, linkDirectionKey) !== getDynamicProperty(current, linkDirectionKey) ||
+                getDynamicProperty(previous, linkLengthKey) !== getDynamicProperty(current, linkLengthKey)) {
                 return true;
             }
         }
@@ -80,7 +80,7 @@ export class UserInputManager {
         for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
             const jointDirectionKey = `joint${i + 1}_direction`;
             
-            if ((previous as any)[jointDirectionKey] !== (current as any)[jointDirectionKey]) {
+            if (getDynamicProperty(previous, jointDirectionKey) !== getDynamicProperty(current, jointDirectionKey)) {
                 return true;
             }
         }
@@ -89,21 +89,21 @@ export class UserInputManager {
     }
 
     private extractStructuralParams(inputs: UserInputs): StructuralParams {
-        const params: any = {};
+        const params = {} as Record<string, unknown>;
         
         // Extract all link parameters
         for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
             const linkDirectionKey = `link_${i}_direction`;
             const linkLengthKey = `link_${i}_length`;
             
-            params[linkDirectionKey] = (inputs as any)[linkDirectionKey];
-            params[linkLengthKey] = (inputs as any)[linkLengthKey];
+            setDynamicProperty(params, linkDirectionKey, getDynamicProperty(inputs, linkDirectionKey));
+            setDynamicProperty(params, linkLengthKey, getDynamicProperty(inputs, linkLengthKey));
         }
         
         // Extract all joint direction parameters (angles are not structural)
         for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
             const jointDirectionKey = `joint${i + 1}_direction`;
-            params[jointDirectionKey] = (inputs as any)[jointDirectionKey];
+            setDynamicProperty(params, jointDirectionKey, getDynamicProperty(inputs, jointDirectionKey));
         }
         
         return params as StructuralParams;

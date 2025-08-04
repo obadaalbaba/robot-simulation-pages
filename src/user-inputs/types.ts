@@ -84,3 +84,20 @@ export type StructuralParams = {
     link_6_direction: Axis;
     link_6_length: number;
 };
+
+/**
+ * Utility functions for type-safe dynamic property access
+ */
+
+// Type-safe property accessors
+export const getProperty = <T, K extends keyof T>(obj: T, key: K): T[K] => {
+    return obj[key];
+};
+
+export const getDynamicProperty = <T>(obj: T, key: string): unknown => {
+    return (obj as Record<string, unknown>)[key];
+};
+
+export const setDynamicProperty = (obj: Record<string, unknown>, key: string, value: unknown): void => {
+    obj[key] = value;
+};
