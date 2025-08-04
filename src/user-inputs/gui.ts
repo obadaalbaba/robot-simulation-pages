@@ -8,14 +8,16 @@ export class UserInputsGUI {
     private anglesFolder: dat.GUI;
     private lengthFolder: dat.GUI;
     private orientationsFolder: dat.GUI;
+    private exportFolder: dat.GUI;
 
-    constructor(private userInputs: UserInputs) {
+    constructor(private userInputs: UserInputs, private exportFunction?: () => void) {
         this.gui = new dat.GUI();
         
         // Initialize folders directly in constructor
         this.anglesFolder = this.gui.addFolder('Angles');
         this.lengthFolder = this.gui.addFolder('Lengths');
         this.orientationsFolder = this.gui.addFolder('Orientations');
+        this.exportFolder = this.gui.addFolder('Export');
         
         this.setupGUI();
     }
@@ -24,6 +26,7 @@ export class UserInputsGUI {
         this.setupAnglesFolder();
         this.setupLengthsFolder();
         this.setupOrientationsFolder();
+        this.setupExportFolder();
     }
 
     private setupAnglesFolder(): void {
@@ -91,7 +94,6 @@ export class UserInputsGUI {
                 }
             }
             
-            this.lengthFolder.open();
         } catch (error) {
             console.error('GUI Critical Error: Failed to set up lengths folder with valid config:', error);
             this.setupLengthsFallback();
@@ -109,7 +111,6 @@ export class UserInputsGUI {
                 this.lengthFolder.add(this.userInputs, lengthKey, fallbackLengthLimits.min, fallbackLengthLimits.max);
             }
             
-            this.lengthFolder.open();
             console.log('GUI: Successfully set up lengths folder with fallback defaults.');
         } catch (error) {
             console.error('GUI Critical Error: Failed to set up lengths folder even with fallbacks:', error);
@@ -146,7 +147,6 @@ export class UserInputsGUI {
                 this.orientationsFolder.add(this.userInputs, jointDirectionKey, orientations.axisOptions);
             }
             
-            this.orientationsFolder.open();
         } catch (error) {
             console.error('GUI Setup Error: Failed to add orientation controls:', error);
             this.setupOrientationsFallback();
@@ -170,10 +170,33 @@ export class UserInputsGUI {
                 this.orientationsFolder.add(this.userInputs, jointDirectionKey, fallbackAxisOptions);
             }
             
-            this.orientationsFolder.open();
             console.log('GUI: Successfully set up orientations folder with fallback defaults.');
         } catch (error) {
             console.error('GUI Critical Error: Failed to set up orientations folder even with fallbacks:', error);
+        }
+    }
+
+    private setupExportFolder(): void {
+        if (this.exportFunction) {
+            // Create an object for the button action
+            const exportActions = {
+                exportScene: () => {
+                    console.log('🎬 Exporting scene for Cognitive3D...');
+                    this.exportFunction!();
+                }
+            };
+
+            // Add the export button
+            this.exportFolder.add(exportActions, 'exportScene').name('Export Scene (.gltf + .bin)');            
+            this.exportFolder.open();
+        } else {
+            // If no export function provided, show a disabled state
+            const noExportActions = {
+                disabled: () => {
+                    console.warn('Export function not available');
+                }
+            };
+            this.exportFolder.add(noExportActions, 'disabled').name('Export Disabled');
         }
     }
 

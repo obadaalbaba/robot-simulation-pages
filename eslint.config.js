@@ -24,6 +24,12 @@ export default [
         requestAnimationFrame: 'readonly',
         clearInterval: 'readonly',
         cancelAnimationFrame: 'readonly',
+        atob: 'readonly',
+        btoa: 'readonly',
+        URL: 'readonly',  
+        Blob: 'readonly',
+        XRSession: 'readonly',
+        XRFrame: 'readonly',
       },
     },
     plugins: {
@@ -38,8 +44,8 @@ export default [
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-inferrable-types': 'off',
       
-      // General JavaScript/TypeScript rules
-      'no-console': 'warn',
+      // General JavaScript/TypeScript rules  
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-debugger': 'error',
       'no-unused-vars': 'off', // Use TypeScript version instead
       'prefer-const': 'error',
@@ -86,7 +92,7 @@ export default [
     rules: {
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/no-explicit-any': 'warn',
-      'no-console': 'warn',
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
       'prefer-const': 'error',
       'no-var': 'error',
     },
