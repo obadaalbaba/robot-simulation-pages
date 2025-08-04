@@ -1,7 +1,7 @@
 import { UserInputManager } from './user-inputs';
 import { SceneManager, SceneExporter } from './scene';
 import { RobotBuilder } from './robot';
-import { FPSMonitor } from './analytics';
+import { AnalyticsMonitor } from './analytics';
 import { MONITOR_INTERVAL_SECONDS } from './constants';
 
 // Validate environment variables
@@ -22,7 +22,7 @@ if (missingVars.length > 0) {
 const sceneManager = new SceneManager();
 
 // Initialize FPS monitoring
-const fpsMonitor = new FPSMonitor({
+const analyticsMonitor = new AnalyticsMonitor({
     apiKey: import.meta.env.VITE_C3D_API_KEY,
     sceneName: import.meta.env.VITE_C3D_SCENE_NAME,
     sceneId: import.meta.env.VITE_C3D_SCENE_ID,
@@ -37,10 +37,10 @@ const hasValidCredentials = missingVars.length === 0 &&
     import.meta.env.VITE_C3D_API_KEY !== 'your_api_key_here';
 
 if (hasValidCredentials) {
-    fpsMonitor.start(camera);
+            analyticsMonitor.start(camera);
 } else {
     console.warn('🔧 Starting FPS monitor without gaze tracking (missing/invalid credentials)');
-    fpsMonitor.start(); // Start without camera to avoid auth errors
+            analyticsMonitor.start(); // Start without camera to avoid auth errors
 }
 const sceneExporter = new SceneExporter();
 const inputManager = new UserInputManager(undefined, ()=>sceneExporter.exportForCognitive3D(sceneManager.getScene()));
@@ -65,14 +65,14 @@ inputManager.startMonitoring(MONITOR_INTERVAL_SECONDS);
 // Start animation loop with conditional gaze tracking
 sceneManager.startAnimation(() => {
     // Record gaze data if enabled and authenticated
-    if (hasValidCredentials && fpsMonitor.isGazeTrackingEnabled()) {
-        fpsMonitor.recordGaze();
+    if (hasValidCredentials && analyticsMonitor.isGazeTrackingEnabled()) {
+        analyticsMonitor.recordGaze();
     }
 });
 
 // Cleanup on window unload
 window.addEventListener('beforeunload', () => {
-    fpsMonitor.stop();
+    analyticsMonitor.stop();
     sceneManager.dispose();
 });
 

@@ -2,7 +2,7 @@ import C3DAnalytics from '@cognitive3d/analytics';
 import C3DThreeAdapter from '@cognitive3d/analytics/adapters/threejs';
 import * as THREE from 'three';
 
-export interface FPSMonitorConfig {
+export interface AnalyticsMonitorConfig {
     apiKey: string;
     sceneName: string;
     sceneId: string;
@@ -14,7 +14,7 @@ export interface FPSMetrics {
     '1pl': number;
 }
 
-export class FPSMonitor {
+export class AnalyticsMonitor {
     private c3d: C3DAnalytics;
     private adapter: C3DThreeAdapter;
     private isMonitoring: boolean = false;
@@ -25,7 +25,7 @@ export class FPSMonitor {
     private lastGazeTime: number = 0;
     private gazeRecordingInterval: number = 100; // Record gaze every 100ms (10 times per second)
 
-    constructor(config: FPSMonitorConfig) {
+    constructor(config: AnalyticsMonitorConfig) {
         // Initialize C3D Analytics
         this.c3d = new C3DAnalytics({
             config: {

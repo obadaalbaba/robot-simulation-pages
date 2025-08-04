@@ -64,7 +64,7 @@ src/
 ├── constants.ts         # Global constants
 ├── vite-env.d.ts        # Vite environment type definitions
 ├── analytics/           # Performance monitoring and analytics
-│   ├── fps-monitor.ts   # FPS tracking and Cognitive3D integration
+│   ├── analytics-monitor.ts   # Performance analytics and Cognitive3D integration
 │   └── index.ts         # Module exports
 ├── robot/               # Robot construction and management
 │   ├── robot-builder.ts # Main robot building logic
@@ -96,13 +96,13 @@ src/
 1. **SceneManager**: Manages the 3D environment, camera, lights, and animation loop
 2. **UserInputManager**: Handles dat.GUI interface and monitors user input changes
 3. **RobotBuilder**: Constructs and updates the robot based on user parameters
-4. **FPSMonitor**: Tracks performance metrics and integrates with Cognitive3D analytics platform
+4. **AnalyticsMonitor**: Tracks performance metrics and integrates with Cognitive3D analytics platform
 
 ### Key Classes and Modules
 - `SceneManager`: Initializes Three.js scene, camera, renderer, and controls
 - `UserInputManager`: Provides real-time input monitoring with callbacks for structural changes and joint updates
 - `RobotBuilder`: Handles robot construction, destruction, and joint angle updates
-- `FPSMonitor`: Integrates with Cognitive3D analytics for performance tracking, gaze recording, and sensor data collection
+- `AnalyticsMonitor`: Integrates with Cognitive3D analytics for performance tracking, gaze recording, and sensor data collection
 - Modular functions for creating links, joints, coordinate frames, and TCP
 
 ### Analytics Integration
