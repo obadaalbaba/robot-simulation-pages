@@ -1,5 +1,5 @@
 import { UserInputManager } from './user-inputs';
-import { SceneManager } from './scene';
+import { SceneManager, SceneExporter } from './scene';
 import { RobotBuilder } from './robot';
 import { FPSMonitor } from './analytics';
 import { MONITOR_INTERVAL_SECONDS } from './constants';
@@ -16,7 +16,11 @@ const missingVars = requiredEnvVars.filter(varName => !import.meta.env[varName])
 if (missingVars.length > 0) {
     console.error('❌ Missing required environment variables:', missingVars);
     console.error('Please check your .env file and ensure all Cognitive3D credentials are set.');
+    console.warn('🔧 Running in development mode - some analytics features may be limited');
 }
+// Initialize managers first
+const sceneManager = new SceneManager();
+
 // Initialize FPS monitoring
 const fpsMonitor = new FPSMonitor({
     apiKey: import.meta.env.VITE_C3D_API_KEY,
@@ -25,12 +29,21 @@ const fpsMonitor = new FPSMonitor({
     versionNumber: import.meta.env.VITE_C3D_VERSION
 });
 
-// Start FPS monitoring with visual display
-fpsMonitor.start();
+// Get camera for gaze tracking and start FPS monitoring
+const camera = sceneManager.getCamera();
 
-// Initialize managers
-const sceneManager = new SceneManager();
-const inputManager = new UserInputManager();
+// Only enable gaze tracking if we have valid credentials
+const hasValidCredentials = missingVars.length === 0 && 
+    import.meta.env.VITE_C3D_API_KEY !== 'your_api_key_here';
+
+if (hasValidCredentials) {
+    fpsMonitor.start(camera);
+} else {
+    console.warn('🔧 Starting FPS monitor without gaze tracking (missing/invalid credentials)');
+    fpsMonitor.start(); // Start without camera to avoid auth errors
+}
+const sceneExporter = new SceneExporter();
+const inputManager = new UserInputManager(undefined, ()=>sceneExporter.exportForCognitive3D(sceneManager.getScene()));
 const robotBuilder = new RobotBuilder(sceneManager.getWorldReferenceFrame());
 
 // Build initial robot
@@ -49,10 +62,12 @@ inputManager.onJointUpdate((params) => {
 // Start monitoring user inputs
 inputManager.startMonitoring(MONITOR_INTERVAL_SECONDS);
 
-// Start animation loop
+// Start animation loop with conditional gaze tracking
 sceneManager.startAnimation(() => {
-    // Gaze tracking available via: fpsMonitor.getAdapter().recordGazeFromCamera(camera)
-    // Currently disabled due to authentication requirements
+    // Record gaze data if enabled and authenticated
+    if (hasValidCredentials && fpsMonitor.isGazeTrackingEnabled()) {
+        fpsMonitor.recordGaze();
+    }
 });
 
 // Cleanup on window unload

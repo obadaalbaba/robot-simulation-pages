@@ -1,5 +1,6 @@
 // Main exports from the scene module
 export { SceneManager } from './scene-manager';
+export { SceneExporter } from './scene-exporter';
 export { defaultSceneConfig } from './config';
 export type { SceneConfig, SceneComponents } from './types';
 export {

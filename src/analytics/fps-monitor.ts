@@ -1,5 +1,6 @@
 import C3DAnalytics from '@cognitive3d/analytics';
 import C3DThreeAdapter from '@cognitive3d/analytics/adapters/threejs';
+import * as THREE from 'three';
 
 export interface FPSMonitorConfig {
     apiKey: string;
@@ -19,6 +20,10 @@ export class FPSMonitor {
     private isMonitoring: boolean = false;
     private fpsDisplay: HTMLElement | null = null;
     private onFPSUpdate?: (metrics: FPSMetrics) => void;
+    private camera?: THREE.PerspectiveCamera;
+    private gazeTrackingEnabled: boolean = false;
+    private lastGazeTime: number = 0;
+    private gazeRecordingInterval: number = 100; // Record gaze every 100ms (10 times per second)
 
     constructor(config: FPSMonitorConfig) {
         // Initialize C3D Analytics
@@ -80,8 +85,11 @@ export class FPSMonitor {
         }
     }
 
-    public async start(): Promise<void> {
+    public async start(camera?: THREE.PerspectiveCamera): Promise<void> {
         if (this.isMonitoring) return;
+
+        // Store camera reference for gaze tracking
+        this.camera = camera;
 
         // Start FPS monitoring
         if (this.c3d.fpsTracker) {
@@ -93,12 +101,20 @@ export class FPSMonitor {
             console.error('❌ FPS tracker not available');
         }
 
-        // Start C3D session
+        // Start C3D session with simulated XR support
         try {
-            await this.c3d.startSession();
-            console.log('✅ C3D Analytics session started');
+            // Create a mock XR session object for better analytics quality
+            const mockXRSession = this.createMockXRSession();
+            await this.c3d.startSession(mockXRSession);
+            
+            if (camera) {
+                this.gazeTrackingEnabled = true;
+                console.log('✅ C3D Analytics session started with simulated XR (gaze tracking enabled)');
+            } else {
+                console.log('✅ C3D Analytics session started with simulated XR (no gaze tracking)');
+            }
         } catch (error) {
-            console.warn('⚠️ C3D session start failed (expected for non-XR):', error);
+            console.warn('⚠️ C3D session start failed:', error);
         }
 
         this.isMonitoring = true;
@@ -140,5 +156,94 @@ export class FPSMonitor {
 
     public isActive(): boolean {
         return this.isMonitoring;
+    }
+
+    public recordGaze(): void {
+        // Throttle gaze recording to avoid API spam
+        const now = Date.now();
+        if (now - this.lastGazeTime < this.gazeRecordingInterval) {
+            return; // Skip this frame
+        }
+        
+        // Record gaze data from Three.js camera if available
+        if (this.gazeTrackingEnabled && this.camera && this.adapter) {
+            try {
+                this.adapter.recordGazeFromCamera(this.camera);
+                this.lastGazeTime = now;
+            } catch (error) {
+                // Handle authentication or network errors gracefully
+                if (error instanceof Error && error.message.includes('401')) {
+                    console.warn('⚠️ Gaze tracking authentication failed - check your Cognitive3D API credentials');
+                    this.gazeTrackingEnabled = false; // Disable to prevent spam
+                } else {
+                    console.warn('⚠️ Gaze tracking error:', error);
+                }
+            }
+        }
+    }
+
+    public isGazeTrackingEnabled(): boolean {
+        return this.gazeTrackingEnabled;
+    }
+
+    public setGazeRecordingFrequency(intervalMs: number): void {
+        this.gazeRecordingInterval = Math.max(50, intervalMs); // Minimum 50ms (20fps max)
+        console.log(`🎯 Gaze recording frequency set to ${1000/this.gazeRecordingInterval}fps`);
+    }
+
+    private createMockXRSession(): any {
+        // Minimal mock XR session - only implement methods that are actually used
+        const mockSession = {
+            // Core properties that may be checked
+            inputSources: [],
+            environmentBlendMode: 'opaque',
+            visibilityState: 'visible',
+            enabledFeatures: [], // SDK expects array for .includes() calls
+            
+            // Event handling - SDK tries to add listeners
+            addEventListener: (_type: string, _listener: any) => {
+                // No-op but SDK expects this method to exist
+            },
+            
+            // Animation frame handling - REQUIRED by C3D SDK
+            requestAnimationFrame: (callback: (time: number, frame?: any) => void) => {
+                return requestAnimationFrame((time) => {
+                    const mockFrame = {
+                        session: mockSession,
+                        getViewerPose: () => null, // Minimal frame interface
+                    };
+                    callback(time, mockFrame);
+                });
+            },
+            
+            cancelAnimationFrame: (handle: number) => {
+                cancelAnimationFrame(handle);
+            },
+            
+            // Reference space handling - USED by C3D SDK  
+            requestReferenceSpace: (type: string) => {
+                console.log(`🔧 Mock XR: Using "${type}" reference space`);
+                return Promise.resolve({
+                    getOffsetReferenceSpace: (_transform: any) => ({}),
+                });
+            },
+            
+            // Session cleanup - USED when ending session
+            end: () => {
+                console.log('🔧 Mock XR: Session ended');
+                return Promise.resolve();
+            }
+        };
+        
+        // Add proxy to catch any unexpected method calls
+        return new Proxy(mockSession, {
+            get: (target, prop) => {
+                if (prop in target) {
+                    return target[prop as keyof typeof target];
+                }
+                console.warn(`🔧 Mock XR: Unexpected method/property access: ${String(prop)}`);
+                return () => null; // Return a no-op function for any method calls
+            }
+        });
     }
 }
