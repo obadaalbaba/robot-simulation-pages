@@ -7,18 +7,25 @@ export interface SceneConfig {
         positionZ: number;
         positionY: number;
         positionX: number;
+        frustumSize: number;
+        near: number;
+        far: number;
     };
     grid: {
         size: number;
         divisions: number;
+    };
+    referenceFrame: {
+        size: number;
+        thickness: number;
     };
 }
 
 export interface SceneComponents {
     scene: THREE.Scene;
     renderer: THREE.WebGLRenderer;
-    camera: THREE.PerspectiveCamera;
+    camera: THREE.OrthographicCamera;
     controls: OrbitControls;
     grid: THREE.GridHelper;
-    worldReferenceFrame: THREE.AxesHelper;
+    worldReferenceFrame: THREE.Group;
 }

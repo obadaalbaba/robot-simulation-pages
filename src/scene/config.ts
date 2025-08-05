@@ -1,14 +1,21 @@
 import { SceneConfig } from './types';
 
 export const defaultSceneConfig: SceneConfig = {
-    backgroundColor: 0x808080,
+    backgroundColor: 0x000000, // Black
     camera: {
-        positionZ: 100,
-        positionY: 100,
-        positionX: 50,
+        positionZ: 90,
+        positionY: 30,
+        positionX: 40,
+        frustumSize: 100,
+        near: 1,
+        far: 1000,
     },
     grid: {
         size: 100,
         divisions: 20,
+    },
+    referenceFrame: {
+        size: 15,
+        thickness: 0.08,
     }
 };
