@@ -72,7 +72,6 @@ export class UserInputsGUI {
             // Create an object for the button action
             const exportActions = {
                 exportScene: () => {
-                    console.log('🎬 Exporting scene for Cognitive3D...');
                     this.exportFunction!();
                 }
             };
