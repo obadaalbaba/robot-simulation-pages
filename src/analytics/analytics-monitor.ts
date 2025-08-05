@@ -24,7 +24,7 @@ export class AnalyticsMonitor {
     private isMonitoring: boolean = false;
     private fpsDisplay: HTMLElement = document.createElement('div');
     private onFPSUpdate?: (metrics: FPSMetrics) => void;
-    private camera?: THREE.PerspectiveCamera;
+    private camera?: THREE.OrthographicCamera;
     private gazeTrackingEnabled: boolean = false;
     private lastGazeTime: number = 0;
     private gazeRecordingInterval: number = 100; // Record gaze every 100ms (10 times per second)
@@ -91,7 +91,7 @@ export class AnalyticsMonitor {
         this.onFPSUpdate?.(metrics);
     }
 
-    public async start(camera?: THREE.PerspectiveCamera): Promise<void> {
+    public async start(camera?: THREE.OrthographicCamera): Promise<void> {
         if (this.isMonitoring) return;
 
         // Store camera reference for gaze tracking

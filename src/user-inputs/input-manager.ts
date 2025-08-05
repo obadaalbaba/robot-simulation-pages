@@ -8,16 +8,18 @@ export type JointUpdateCallback = (params: UserInputs) => void;
 export class UserInputManager {
     private userInputs: UserInputs;
     private previousStructuralParams: StructuralParams;
+    private previousJointAngles: Record<string, number>;
     private gui: UserInputsGUI;
     private updateInterval: number | null = null;
 
     private structuralChangeCallbacks: StructuralChangeCallback[] = [];
     private jointUpdateCallbacks: JointUpdateCallback[] = [];
 
-    constructor(initialInputs?: Partial<UserInputs>, exportFunction?: () => void) {
+    constructor(initialInputs?: Partial<UserInputs>, exportFunction?: () => void, transformationFunction?: () => void) {
         this.userInputs = { ...defaultUserInputs, ...initialInputs };
         this.previousStructuralParams = this.extractStructuralParams(this.userInputs);
-        this.gui = new UserInputsGUI(this.userInputs, exportFunction);
+        this.previousJointAngles = this.extractJointAngles(this.userInputs);
+        this.gui = new UserInputsGUI(this.userInputs, exportFunction, transformationFunction);
     }
 
     public getUserInputs(): UserInputs {
@@ -50,14 +52,29 @@ export class UserInputManager {
     }
 
     private checkForUpdates(): void {
-        // Always notify joint update callbacks
-        this.jointUpdateCallbacks.forEach(callback => callback(this.userInputs));
+        if (this.hasJointUpdates()) {
+            this.previousJointAngles = this.extractJointAngles(this.userInputs);
+            this.jointUpdateCallbacks.forEach(callback => callback(this.userInputs));
+        }
 
-        // Check for structural changes
         if (this.hasStructuralChanges()) {
             this.previousStructuralParams = this.extractStructuralParams(this.userInputs);
             this.structuralChangeCallbacks.forEach(callback => callback(this.userInputs));
         }
+    }
+
+    private hasJointUpdates(): boolean {
+        const current = this.extractJointAngles(this.userInputs);
+        const previous = this.previousJointAngles;
+
+        // Type-safe check of all joint angle parameters  
+        for (const jointAngleKey of UserInputKeys.JOINT_ANGLES) {
+            if (previous[jointAngleKey] !== current[jointAngleKey]) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private hasStructuralChanges(): boolean {
@@ -116,6 +133,15 @@ export class UserInputManager {
             joint5_direction: inputs.joint5_direction,
             joint6_direction: inputs.joint6_direction,
         };
+    }
+
+    private extractJointAngles(inputs: UserInputs): Record<string, number> {
+        // Type-safe extraction of joint angle parameters
+        const angles: Record<string, number> = {};
+        for (const jointAngleKey of UserInputKeys.JOINT_ANGLES) {
+            angles[jointAngleKey] = inputs[jointAngleKey];
+        }
+        return angles;
     }
 
     public destroy(): void {

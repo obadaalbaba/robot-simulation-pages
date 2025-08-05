@@ -9,7 +9,7 @@ import {
 } from './functions';
 import { type Axis } from '../shared/types';
 import { type UserInputs } from '../user-inputs';
-import { RobotComponents } from './types';
+import { RobotComponents, LinkIndex, JointNumber } from './types';
 import { RobotDefinition } from './robot-definition';
 
 export class RobotBuilder {
@@ -20,21 +20,16 @@ export class RobotBuilder {
         this.worldReferenceFrame = worldReferenceFrame;
     }
 
-    public buildRobot(userInputs: UserInputs): RobotComponents {
-        // Remove existing robot if any
+    public buildRobot(userInputs: UserInputs): void {
         if (this.components) {
             this.destroyRobot();
         }
 
-        // Build the robot structure
-        const components = this.constructRobotStructure(userInputs);
-        this.components = components;
-
-        return components;
+        this.components = this.constructRobotStructure(userInputs);
     }
 
-    public rebuildRobot(userInputs: UserInputs): RobotComponents {
-        return this.buildRobot(userInputs);
+    public rebuildRobot(userInputs: UserInputs): void {
+        this.buildRobot(userInputs);
     }
 
     public updateJointAngles(userInputs: UserInputs): void {
@@ -42,32 +37,94 @@ export class RobotBuilder {
             throw new Error('Robot must be built before updating joint angles');
         }
 
-        // Type-safe joint updates - no more string generation or casting!
         const jointUpdates = [
-            { frame: this.components.joint1frame, angle: userInputs.theta1, direction: userInputs.joint1_direction },
-            { frame: this.components.joint2frame, angle: userInputs.theta2, direction: userInputs.joint2_direction },
-            { frame: this.components.joint3frame, angle: userInputs.theta3, direction: userInputs.joint3_direction },
-            { frame: this.components.joint4frame, angle: userInputs.theta4, direction: userInputs.joint4_direction },
-            { frame: this.components.joint5frame, angle: userInputs.theta5, direction: userInputs.joint5_direction },
-            { frame: this.components.joint6frame, angle: userInputs.theta6, direction: userInputs.joint6_direction },
-        ];
-        
-        // Only update joints that exist in the robot definition
+            { frame: this.components.jointFrames[0], angle: userInputs.theta1, direction: userInputs.joint1_direction },
+            { frame: this.components.jointFrames[1], angle: userInputs.theta2, direction: userInputs.joint2_direction },
+            { frame: this.components.jointFrames[2], angle: userInputs.theta3, direction: userInputs.joint3_direction },
+            { frame: this.components.jointFrames[3], angle: userInputs.theta4, direction: userInputs.joint4_direction },
+            { frame: this.components.jointFrames[4], angle: userInputs.theta5, direction: userInputs.joint5_direction },
+            { frame: this.components.jointFrames[5], angle: userInputs.theta6, direction: userInputs.joint6_direction },
+        ];        
         const numJoints = Math.min(RobotDefinition.getNumJoints(), jointUpdates.length);
+
         for (let i = 0; i < numJoints; i++) {
             const { frame, angle, direction } = jointUpdates[i];
             this.updateJointRotation(frame, angle, direction);
         }
     }
 
+    public getLinkEndFrame(linkIndex: LinkIndex): THREE.AxesHelper | null {
+        return this.components?.linkEnds[linkIndex] || null;
+    }
+
+    public getLinkOriginFrame(linkIndex: LinkIndex): THREE.AxesHelper | null {
+        return this.components?.linkOrigins[linkIndex] || null;
+    }
+
+    public getJointFrame(jointNumber: JointNumber): THREE.AxesHelper | null {
+        // Convert joint number (1-6) to array index (0-5)
+        const arrayIndex = jointNumber - 1;
+        return this.components?.jointFrames[arrayIndex] || null;
+    }
+
     public getTCP(): THREE.AxesHelper | null {
         return this.components?.tcp || null;
     }
 
+    public calculateAndLogTransformations(): void {
+        console.log('=== WORLD POSITIONS ===');
+        for (let i = 0; i <= 6; i++) {
+            const frame = this.getLinkEndFrame(i as LinkIndex);
+            const pos = new THREE.Vector3();
+            frame?.getWorldPosition(pos);
+            console.log(`Link ${i} end world position:`, pos);
+        }
+
+        console.log('\n=== WORLD MATRICES ===');
+        console.log('robot link end frame 0', this.getLinkEndFrame(0)?.matrixWorld.elements);
+        console.log('robot link end frame 1', this.getLinkEndFrame(1)?.matrixWorld.elements);
+        console.log('robot link end frame 2', this.getLinkEndFrame(2)?.matrixWorld.elements);
+        console.log('robot link end frame 3', this.getLinkEndFrame(3)?.matrixWorld.elements);
+        console.log('robot link end frame 4', this.getLinkEndFrame(4)?.matrixWorld.elements);
+        console.log('robot link end frame 5', this.getLinkEndFrame(5)?.matrixWorld.elements);
+        console.log('robot link end frame 6', this.getLinkEndFrame(6)?.matrixWorld.elements);
+
+        console.log('\n=== RELATIVE TRANSFORMS ===');
+        const frame0 = this.getLinkEndFrame(0);
+        const frame1 = this.getLinkEndFrame(1);
+        if (frame0 && frame1) {
+            console.log('robot link end frame 1 relative to link 0 end', frame0.matrixWorld.clone().invert().multiply(frame1.matrixWorld).elements);
+        }
+        
+        const frame2 = this.getLinkEndFrame(2);
+        if (frame1 && frame2) {
+            console.log('robot link end frame 2 relative to link 1 end', frame1.matrixWorld.clone().invert().multiply(frame2.matrixWorld).elements);
+        }
+        
+        const frame3 = this.getLinkEndFrame(3);
+        if (frame2 && frame3) {
+            console.log('robot link end frame 3 relative to link 2 end', frame2.matrixWorld.clone().invert().multiply(frame3.matrixWorld).elements);
+        }
+        
+        const frame4 = this.getLinkEndFrame(4);
+        if (frame3 && frame4) {
+            console.log('robot link end frame 4 relative to link 3 end', frame3.matrixWorld.clone().invert().multiply(frame4.matrixWorld).elements);
+        }
+        
+        const frame5 = this.getLinkEndFrame(5);
+        if (frame4 && frame5) {
+            console.log('robot link end frame 5 relative to link 4 end', frame4.matrixWorld.clone().invert().multiply(frame5.matrixWorld).elements);
+        }
+        
+        const frame6 = this.getLinkEndFrame(6);
+        if (frame5 && frame6) {
+            console.log('robot link end frame 6 relative to link 5 end', frame5.matrixWorld.clone().invert().multiply(frame6.matrixWorld).elements);
+        }
+    }
+
     private destroyRobot(): void {
         if (this.components) {
-            // Remove the robot hierarchy from the world reference frame
-            this.worldReferenceFrame.remove(this.components.link0origin);
+            this.worldReferenceFrame.remove(this.components.linkOrigins[0]);
             this.components = null;
         }
     }
@@ -136,20 +193,9 @@ export class RobotBuilder {
         const tcp = createTCPframe(link6end);
 
         return {
-            link0origin,
-            link1origin,
-            link2origin,
-            link3origin,
-            link0end,
-            link1end,
-            link2end,
-            link3end,
-            joint1frame,
-            joint2frame,
-            joint3frame,
-            joint4frame,
-            joint5frame,
-            joint6frame,
+            linkOrigins: [link0origin, link1origin, link2origin, link3origin, link4origin, link5origin, link6origin],
+            linkEnds: [link0end, link1end, link2end, link3end, link4end, link5end, link6end],
+            jointFrames: [joint1frame, joint2frame, joint3frame, joint4frame, joint5frame, joint6frame],
             tcp,
         };
     }

@@ -35,10 +35,9 @@ if (hasValidCredentials) {
 }
 
 const sceneExporter = new SceneExporter();
-const inputManager = new UserInputManager(undefined, ()=>sceneExporter.exportForCognitive3D(sceneManager.getScene()));
 const robotBuilder = new RobotBuilder(sceneManager.getWorldReferenceFrame());
+const inputManager = new UserInputManager(undefined, ()=>sceneExporter.exportForCognitive3D(sceneManager.getScene()), () => robotBuilder.calculateAndLogTransformations());
 const userInputs = inputManager.getUserInputs();
-
 robotBuilder.buildRobot(userInputs);
 
 inputManager.onStructuralChange((params) => {
