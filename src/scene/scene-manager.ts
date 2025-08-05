@@ -26,7 +26,8 @@ export class SceneManager {
         const camera = createCamera(
             this.config.camera.positionZ,
             this.config.camera.positionY,
-            this.config.camera.positionX
+            this.config.camera.positionX,
+            this.config.camera
         );
         
         // Create interactive components
@@ -34,7 +35,7 @@ export class SceneManager {
         
         // Create scene objects
         const grid = createGrid(this.config.grid.size, this.config.grid.divisions);
-        const worldReferenceFrame = createReferenceFrame();
+        const worldReferenceFrame = createReferenceFrame(this.config.referenceFrame);
         
         // Add objects to scene
         scene.add(grid);
@@ -58,7 +59,7 @@ export class SceneManager {
         return this.components.renderer;
     }
 
-    public getCamera(): THREE.PerspectiveCamera {
+    public getCamera(): THREE.OrthographicCamera {
         return this.components.camera;
     }
 

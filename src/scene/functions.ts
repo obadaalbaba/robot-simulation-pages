@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { SceneConfig } from './types';
 
 export function createScene(sceneColor: number): THREE.Scene {
     const scene = new THREE.Scene();
@@ -19,9 +20,19 @@ export function createRenderer(container?: HTMLElement): THREE.WebGLRenderer {
 export function createCamera(
     cameraPositionZ: number,
     cameraPositionY: number,
-    cameraPositionX: number
-): THREE.PerspectiveCamera {
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+    cameraPositionX: number,
+    cameraConfig: SceneConfig['camera']
+): THREE.OrthographicCamera {
+    const aspect = window.innerWidth / window.innerHeight;
+    const { frustumSize, near, far } = cameraConfig;
+    const camera = new THREE.OrthographicCamera(
+        -frustumSize * aspect / 2, // left
+        frustumSize * aspect / 2,  // right
+        frustumSize / 2,           // top
+        -frustumSize / 2,          // bottom
+        near,                      // near
+        far                        // far
+    );
     camera.position.z = cameraPositionZ;
     camera.position.y = cameraPositionY;
     camera.position.x = cameraPositionX;
@@ -41,8 +52,8 @@ export function createControls(camera: THREE.Camera, renderer: THREE.WebGLRender
     return controls;
 }
 
-export function createReferenceFrame(): THREE.AxesHelper {
-    const axesHelper = new THREE.AxesHelper(20);
+export function createReferenceFrame(referenceFrameConfig: SceneConfig['referenceFrame']): THREE.AxesHelper {
+    const axesHelper = new THREE.AxesHelper(referenceFrameConfig.size);
 
     return axesHelper;
 }
