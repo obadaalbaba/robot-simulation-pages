@@ -42,7 +42,7 @@ export function createControls(camera: THREE.Camera, renderer: THREE.WebGLRender
 }
 
 export function createReferenceFrame(): THREE.AxesHelper {
-    const axesHelper = new THREE.AxesHelper(5);
+    const axesHelper = new THREE.AxesHelper(20);
 
     return axesHelper;
 }
