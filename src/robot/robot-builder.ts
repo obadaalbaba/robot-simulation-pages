@@ -9,7 +9,7 @@ import {
 } from './functions';
 import { type Axis } from '../shared/types';
 import { type UserInputs } from '../user-inputs';
-import { RobotComponents } from './types';
+import { RobotComponents, LinkIndex, JointNumber } from './types';
 import { RobotDefinition } from './robot-definition';
 
 export class RobotBuilder {
@@ -38,12 +38,12 @@ export class RobotBuilder {
         }
 
         const jointUpdates = [
-            { frame: this.components.joint1frame, angle: userInputs.theta1, direction: userInputs.joint1_direction },
-            { frame: this.components.joint2frame, angle: userInputs.theta2, direction: userInputs.joint2_direction },
-            { frame: this.components.joint3frame, angle: userInputs.theta3, direction: userInputs.joint3_direction },
-            { frame: this.components.joint4frame, angle: userInputs.theta4, direction: userInputs.joint4_direction },
-            { frame: this.components.joint5frame, angle: userInputs.theta5, direction: userInputs.joint5_direction },
-            { frame: this.components.joint6frame, angle: userInputs.theta6, direction: userInputs.joint6_direction },
+            { frame: this.components.jointFrames[0], angle: userInputs.theta1, direction: userInputs.joint1_direction },
+            { frame: this.components.jointFrames[1], angle: userInputs.theta2, direction: userInputs.joint2_direction },
+            { frame: this.components.jointFrames[2], angle: userInputs.theta3, direction: userInputs.joint3_direction },
+            { frame: this.components.jointFrames[3], angle: userInputs.theta4, direction: userInputs.joint4_direction },
+            { frame: this.components.jointFrames[4], angle: userInputs.theta5, direction: userInputs.joint5_direction },
+            { frame: this.components.jointFrames[5], angle: userInputs.theta6, direction: userInputs.joint6_direction },
         ];        
         const numJoints = Math.min(RobotDefinition.getNumJoints(), jointUpdates.length);
 
@@ -53,13 +53,27 @@ export class RobotBuilder {
         }
     }
 
+    public getLinkEndFrame(linkIndex: LinkIndex): THREE.AxesHelper | null {
+        return this.components?.linkEnds[linkIndex] || null;
+    }
+
+    public getLinkOriginFrame(linkIndex: LinkIndex): THREE.AxesHelper | null {
+        return this.components?.linkOrigins[linkIndex] || null;
+    }
+
+    public getJointFrame(jointNumber: JointNumber): THREE.AxesHelper | null {
+        // Convert joint number (1-6) to array index (0-5)
+        const arrayIndex = jointNumber - 1;
+        return this.components?.jointFrames[arrayIndex] || null;
+    }
+
     public getTCP(): THREE.AxesHelper | null {
         return this.components?.tcp || null;
     }
 
     private destroyRobot(): void {
         if (this.components) {
-            this.worldReferenceFrame.remove(this.components.link0origin);
+            this.worldReferenceFrame.remove(this.components.linkOrigins[0]);
             this.components = null;
         }
     }
@@ -128,26 +142,9 @@ export class RobotBuilder {
         const tcp = createTCPframe(link6end);
 
         return {
-            link0origin,
-            link1origin,
-            link2origin,
-            link3origin,
-            link4origin,
-            link5origin,
-            link6origin,
-            link0end,
-            link1end,
-            link2end,
-            link3end,
-            link4end,
-            link5end,
-            link6end,
-            joint1frame,
-            joint2frame,
-            joint3frame,
-            joint4frame,
-            joint5frame,
-            joint6frame,
+            linkOrigins: [link0origin, link1origin, link2origin, link3origin, link4origin, link5origin, link6origin],
+            linkEnds: [link0end, link1end, link2end, link3end, link4end, link5end, link6end],
+            jointFrames: [joint1frame, joint2frame, joint3frame, joint4frame, joint5frame, joint6frame],
             tcp,
         };
     }

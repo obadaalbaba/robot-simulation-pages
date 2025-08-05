@@ -1,32 +1,19 @@
 import * as THREE from 'three';
 import { type UserInputs } from '../user-inputs';
 
+// Type aliases for better type safety with indices
+export type LinkIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type JointNumber = 1 | 2 | 3 | 4 | 5 | 6;  // Joints are numbered 1-6, not 0-5
+
 export interface RobotComponents {
-    // Link origins (coordinate frames at start of each link)
-    link0origin: THREE.AxesHelper;
-    link1origin: THREE.AxesHelper;
-    link2origin: THREE.AxesHelper;
-    link3origin: THREE.AxesHelper;
-    link4origin: THREE.AxesHelper;
-    link5origin: THREE.AxesHelper;
-    link6origin: THREE.AxesHelper;
+    // Link origins (coordinate frames at start of each link) - indexed from 0-6
+    linkOrigins: THREE.AxesHelper[];
     
-    // Link end frames (coordinate frames at end of each link)
-    link0end: THREE.AxesHelper;
-    link1end: THREE.AxesHelper;
-    link2end: THREE.AxesHelper;
-    link3end: THREE.AxesHelper;
-    link4end: THREE.AxesHelper;
-    link5end: THREE.AxesHelper;
-    link6end: THREE.AxesHelper;
+    // Link end frames (coordinate frames at end of each link) - indexed from 0-6
+    linkEnds: THREE.AxesHelper[];
     
-    // Joint frames (coordinate frames that rotate with joints)
-    joint1frame: THREE.AxesHelper;
-    joint2frame: THREE.AxesHelper;
-    joint3frame: THREE.AxesHelper;
-    joint4frame: THREE.AxesHelper;
-    joint5frame: THREE.AxesHelper;
-    joint6frame: THREE.AxesHelper;
+    // Joint frames (coordinate frames that rotate with joints) - joint1 at index 0, joint6 at index 5
+    jointFrames: THREE.AxesHelper[];  // Array length 6: [joint1, joint2, joint3, joint4, joint5, joint6]
     
     // Tool Center Point
     tcp: THREE.AxesHelper;
