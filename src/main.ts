@@ -35,21 +35,17 @@ if (hasValidCredentials) {
 }
 
 const sceneExporter = new SceneExporter();
-const inputManager = new UserInputManager(undefined, ()=>sceneExporter.exportForCognitive3D(sceneManager.getScene()));
 const robotBuilder = new RobotBuilder(sceneManager.getWorldReferenceFrame());
+const inputManager = new UserInputManager(undefined, ()=>sceneExporter.exportForCognitive3D(sceneManager.getScene()), () => robotBuilder.calculateAndLogTransformations());
 const userInputs = inputManager.getUserInputs();
 robotBuilder.buildRobot(userInputs);
 
-console.log('robot', robotBuilder);
-
 inputManager.onStructuralChange((params) => {
     robotBuilder.rebuildRobot(params);
-    console.log('robot', robotBuilder);
 });
 
 inputManager.onJointUpdate((params) => {
     robotBuilder.updateJointAngles(params);
-    console.log('robot', robotBuilder);
 });
 
 inputManager.startMonitoring(MONITOR_INTERVAL_SECONDS);

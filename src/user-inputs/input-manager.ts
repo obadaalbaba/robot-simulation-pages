@@ -15,11 +15,11 @@ export class UserInputManager {
     private structuralChangeCallbacks: StructuralChangeCallback[] = [];
     private jointUpdateCallbacks: JointUpdateCallback[] = [];
 
-    constructor(initialInputs?: Partial<UserInputs>, exportFunction?: () => void) {
+    constructor(initialInputs?: Partial<UserInputs>, exportFunction?: () => void, transformationFunction?: () => void) {
         this.userInputs = { ...defaultUserInputs, ...initialInputs };
         this.previousStructuralParams = this.extractStructuralParams(this.userInputs);
         this.previousJointAngles = this.extractJointAngles(this.userInputs);
-        this.gui = new UserInputsGUI(this.userInputs, exportFunction);
+        this.gui = new UserInputsGUI(this.userInputs, exportFunction, transformationFunction);
     }
 
     public getUserInputs(): UserInputs {

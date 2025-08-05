@@ -9,7 +9,7 @@ export class UserInputsGUI {
     private orientationsFolder: dat.GUI;
     private exportFolder: dat.GUI;
 
-    constructor(private userInputs: UserInputs, private exportFunction?: () => void) {
+    constructor(private userInputs: UserInputs, private exportFunction?: () => void, private transformationFunction?: () => void) {
         this.gui = new dat.GUI();
         
         this.anglesFolder = this.gui.addFolder('Angles');
@@ -68,26 +68,37 @@ export class UserInputsGUI {
     }
 
     private setupExportFolder(): void {
-        if (this.exportFunction) {
-            // Create an object for the button action
-            const exportActions = {
-                exportScene: () => {
-                    this.exportFunction!();
-                }
-            };
-
-            // Add the export button
-            this.exportFolder.add(exportActions, 'exportScene').name('Export Scene (.gltf + .bin)');            
-            this.exportFolder.open();
-        } else {
-            // If no export function provided, show a disabled state
-            const noExportActions = {
-                disabled: () => {
+        // Create an object for the button actions
+        const actions = {
+            exportScene: () => {
+                if (this.exportFunction) {
+                    this.exportFunction();
+                } else {
                     console.warn('Export function not available');
                 }
-            };
-            this.exportFolder.add(noExportActions, 'disabled').name('Export Disabled');
+            },
+            calculateTransformations: () => {
+                if (this.transformationFunction) {
+                    this.transformationFunction();
+                } else {
+                    console.warn('Transformation function not available');
+                }
+            }
+        };
+
+        // Add the export button
+        if (this.exportFunction) {
+            this.exportFolder.add(actions, 'exportScene').name('Export Scene (.gltf + .bin)');
+        } else {
+            this.exportFolder.add(actions, 'exportScene').name('Export Disabled');
         }
+
+        // Add the transformation calculation button
+        if (this.transformationFunction) {
+            this.exportFolder.add(actions, 'calculateTransformations').name('Calculate Transformations');
+        }
+        
+        this.exportFolder.open();
     }
 
     public destroy(): void {

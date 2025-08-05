@@ -71,6 +71,57 @@ export class RobotBuilder {
         return this.components?.tcp || null;
     }
 
+    public calculateAndLogTransformations(): void {
+        console.log('=== WORLD POSITIONS ===');
+        for (let i = 0; i <= 6; i++) {
+            const frame = this.getLinkEndFrame(i as any);
+            const pos = new THREE.Vector3();
+            frame?.getWorldPosition(pos);
+            console.log(`Link ${i} end world position:`, pos);
+        }
+
+        console.log('\n=== WORLD MATRICES ===');
+        console.log('robot link end frame 0', this.getLinkEndFrame(0)?.matrixWorld.elements);
+        console.log('robot link end frame 1', this.getLinkEndFrame(1)?.matrixWorld.elements);
+        console.log('robot link end frame 2', this.getLinkEndFrame(2)?.matrixWorld.elements);
+        console.log('robot link end frame 3', this.getLinkEndFrame(3)?.matrixWorld.elements);
+        console.log('robot link end frame 4', this.getLinkEndFrame(4)?.matrixWorld.elements);
+        console.log('robot link end frame 5', this.getLinkEndFrame(5)?.matrixWorld.elements);
+        console.log('robot link end frame 6', this.getLinkEndFrame(6)?.matrixWorld.elements);
+
+        console.log('\n=== RELATIVE TRANSFORMS ===');
+        const frame0 = this.getLinkEndFrame(0);
+        const frame1 = this.getLinkEndFrame(1);
+        if (frame0 && frame1) {
+            console.log('robot link end frame 1 relative to link 0 end', frame0.matrixWorld.clone().invert().multiply(frame1.matrixWorld).elements);
+        }
+        
+        const frame2 = this.getLinkEndFrame(2);
+        if (frame1 && frame2) {
+            console.log('robot link end frame 2 relative to link 1 end', frame1.matrixWorld.clone().invert().multiply(frame2.matrixWorld).elements);
+        }
+        
+        const frame3 = this.getLinkEndFrame(3);
+        if (frame2 && frame3) {
+            console.log('robot link end frame 3 relative to link 2 end', frame2.matrixWorld.clone().invert().multiply(frame3.matrixWorld).elements);
+        }
+        
+        const frame4 = this.getLinkEndFrame(4);
+        if (frame3 && frame4) {
+            console.log('robot link end frame 4 relative to link 3 end', frame3.matrixWorld.clone().invert().multiply(frame4.matrixWorld).elements);
+        }
+        
+        const frame5 = this.getLinkEndFrame(5);
+        if (frame4 && frame5) {
+            console.log('robot link end frame 5 relative to link 4 end', frame4.matrixWorld.clone().invert().multiply(frame5.matrixWorld).elements);
+        }
+        
+        const frame6 = this.getLinkEndFrame(6);
+        if (frame5 && frame6) {
+            console.log('robot link end frame 6 relative to link 5 end', frame5.matrixWorld.clone().invert().multiply(frame6.matrixWorld).elements);
+        }
+    }
+
     private destroyRobot(): void {
         if (this.components) {
             this.worldReferenceFrame.remove(this.components.linkOrigins[0]);
