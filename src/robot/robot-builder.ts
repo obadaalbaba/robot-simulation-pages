@@ -37,7 +37,7 @@ export class RobotBuilder {
         return this.buildRobot(userInputs);
     }
 
-    public updateJointAngles(userInputs: UserInputs): void {
+    public updateJointAngles(userInputs: UserInputs): RobotComponents {
         if (!this.components) {
             throw new Error('Robot must be built before updating joint angles');
         }
@@ -58,6 +58,8 @@ export class RobotBuilder {
             const { frame, angle, direction } = jointUpdates[i];
             this.updateJointRotation(frame, angle, direction);
         }
+
+        return this.components;
     }
 
     public getTCP(): THREE.AxesHelper | null {
