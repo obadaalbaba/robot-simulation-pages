@@ -1,7 +1,7 @@
 import { type Axis } from '../shared/types';
 
 /**
- * Unified robot definition that serves as the single source of truth
+ * Type-safe robot definition that serves as the single source of truth
  * for robot structure, defaults, and validation limits.
  */
 
@@ -17,75 +17,60 @@ export interface LinkDefinition {
     lengthRange: { min: number; max: number };
 }
 
-export interface RobotDefinition {
-    links: LinkDefinition[];
-    joints: JointDefinition[];
-}
-
-// Shared limits
-const ANGLE_LIMITS = { min: -180, max: 180 };
-const LENGTH_LIMITS = { min: 0, max: 20 };
-
-/**
- * The canonical robot definition - modify this to change the entire robot
- */
-export const ROBOT_DEFINITION: RobotDefinition = {
+// Define the robot structure as a const assertion for better type inference
+export const ROBOT_CONFIG = {
     links: [
         // Link 0 (base)
-        { direction: 'y', defaultLength: 5, lengthRange: LENGTH_LIMITS },
+        { direction: 'y', defaultLength: 5, lengthRange: { min: 0, max: 20 } },
         // Link 1
-        { direction: 'z', defaultLength: 5, lengthRange: LENGTH_LIMITS },
+        { direction: 'z', defaultLength: 5, lengthRange: { min: 0, max: 20 } },
         // Link 2
-        { direction: 'x', defaultLength: 15, lengthRange: LENGTH_LIMITS },
+        { direction: 'x', defaultLength: 15, lengthRange: { min: 0, max: 20 } },
         // Link 3
-        { direction: 'y', defaultLength: 15, lengthRange: LENGTH_LIMITS },
+        { direction: 'y', defaultLength: 15, lengthRange: { min: 0, max: 20 } },
         // Link 4
-        { direction: 'x', defaultLength: 8, lengthRange: LENGTH_LIMITS },
+        { direction: 'x', defaultLength: 8, lengthRange: { min: 0, max: 20 } },
         // Link 5
-        { direction: 'z', defaultLength: 8, lengthRange: LENGTH_LIMITS },
+        { direction: 'z', defaultLength: 8, lengthRange: { min: 0, max: 20 } },
         // Link 6
-        { direction: 'y', defaultLength: 5, lengthRange: LENGTH_LIMITS },
+        { direction: 'y', defaultLength: 5, lengthRange: { min: 0, max: 20 } },
     ],
     joints: [
         // Joint 1
-        { direction: 'y', defaultAngle: 150, angleRange: ANGLE_LIMITS },
+        { direction: 'y', defaultAngle: 150, angleRange: { min: -180, max: 180 } },
         // Joint 2
-        { direction: 'y', defaultAngle: 45, angleRange: ANGLE_LIMITS },
+        { direction: 'y', defaultAngle: 45, angleRange: { min: -180, max: 180 } },
         // Joint 3
-        { direction: 'x', defaultAngle: 45, angleRange: ANGLE_LIMITS },
+        { direction: 'x', defaultAngle: 45, angleRange: { min: -180, max: 180 } },
         // Joint 4
-        { direction: 'y', defaultAngle: 0, angleRange: ANGLE_LIMITS },
+        { direction: 'y', defaultAngle: 0, angleRange: { min: -180, max: 180 } },
         // Joint 5
-        { direction: 'y', defaultAngle: 0, angleRange: ANGLE_LIMITS },
+        { direction: 'y', defaultAngle: 0, angleRange: { min: -180, max: 180 } },
         // Joint 6
-        { direction: 'y', defaultAngle: 0, angleRange: ANGLE_LIMITS },
+        { direction: 'y', defaultAngle: 0, angleRange: { min: -180, max: 180 } },
     ],
-};
+} as const;
 
-/**
- * Utility functions to work with the robot definition
- */
-export const RobotDefinitionUtils = {
-    getNumLinks: (): number => ROBOT_DEFINITION.links.length,
-    getNumJoints: (): number => ROBOT_DEFINITION.joints.length,
-    
-    getLinkDefinition: (index: number): LinkDefinition => {
-        if (index < 0 || index >= ROBOT_DEFINITION.links.length) {
+// Infer types from the configuration
+export type RobotConfig = typeof ROBOT_CONFIG;
+export type LinkConfig = RobotConfig['links'][number];
+export type JointConfig = RobotConfig['joints'][number];
+
+// Type-safe utilities that work with the config directly
+export const RobotDefinition = {
+    config: ROBOT_CONFIG,
+    getNumLinks: () => ROBOT_CONFIG.links.length,
+    getNumJoints: () => ROBOT_CONFIG.joints.length,
+    getLinkConfig: (index: number): LinkConfig => {
+        if (index < 0 || index >= ROBOT_CONFIG.links.length) {
             throw new Error(`Link index ${index} out of range`);
         }
-        return ROBOT_DEFINITION.links[index];
+        return ROBOT_CONFIG.links[index];
     },
-    
-    getJointDefinition: (index: number): JointDefinition => {
-        if (index < 0 || index >= ROBOT_DEFINITION.joints.length) {
+    getJointConfig: (index: number): JointConfig => {
+        if (index < 0 || index >= ROBOT_CONFIG.joints.length) {
             throw new Error(`Joint index ${index} out of range`);
         }
-        return ROBOT_DEFINITION.joints[index];
+        return ROBOT_CONFIG.joints[index];
     },
-    
-    // Generate property names dynamically
-    getLinkDirectionKey: (index: number): string => `link_${index}_direction`,
-    getLinkLengthKey: (index: number): string => `link_${index}_length`,
-    getJointDirectionKey: (index: number): string => `joint${index + 1}_direction`,
-    getJointAngleKey: (index: number): string => `theta${index + 1}`,
-};
+} as const;

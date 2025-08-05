@@ -1,3 +1,5 @@
+/// <reference types="webxr" />
+
 import C3DAnalytics from '@cognitive3d/analytics';
 import C3DThreeAdapter from '@cognitive3d/analytics/adapters/threejs';
 import * as THREE from 'three';

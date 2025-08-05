@@ -1,5 +1,5 @@
-import { UserInputs, setDynamicProperty } from './types';
-import { RobotDefinitionUtils } from '../robot/robot-definition';
+import { UserInputs, UserInputKeys } from './types';
+import { RobotDefinition } from '../robot/robot-definition';
 
 /**
  * Configuration generated from the unified robot definition
@@ -8,43 +8,70 @@ import { RobotDefinitionUtils } from '../robot/robot-definition';
 
 // Generate default user inputs from robot definition
 export const defaultUserInputs: UserInputs = (() => {
-    const inputs = {} as Record<string, unknown>;
+    const robotConfig = RobotDefinition.config;
     
-    // Add all link parameters
-    for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
-        const link = RobotDefinitionUtils.getLinkDefinition(i);
-        setDynamicProperty(inputs, `link_${i}_direction`, link.direction);
-        setDynamicProperty(inputs, `link_${i}_length`, link.defaultLength);
-    }
-    
-    // Add all joint parameters
-    for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
-        const joint = RobotDefinitionUtils.getJointDefinition(i);
-        setDynamicProperty(inputs, `joint${i + 1}_direction`, joint.direction);
-        setDynamicProperty(inputs, `theta${i + 1}`, joint.defaultAngle);
-    }
-    
-    return inputs as UserInputs;
+    return {
+        // Link 0
+        link_0_direction: robotConfig.links[0].direction,
+        link_0_length: robotConfig.links[0].defaultLength,
+        
+        // Joint 1 + Link 1  
+        joint1_direction: robotConfig.joints[0].direction,
+        theta1: robotConfig.joints[0].defaultAngle,
+        link_1_direction: robotConfig.links[1].direction,
+        link_1_length: robotConfig.links[1].defaultLength,
+        
+        // Joint 2 + Link 2
+        joint2_direction: robotConfig.joints[1].direction,
+        theta2: robotConfig.joints[1].defaultAngle,
+        link_2_direction: robotConfig.links[2].direction,
+        link_2_length: robotConfig.links[2].defaultLength,
+        
+        // Joint 3 + Link 3
+        joint3_direction: robotConfig.joints[2].direction,
+        theta3: robotConfig.joints[2].defaultAngle,
+        link_3_direction: robotConfig.links[3].direction,
+        link_3_length: robotConfig.links[3].defaultLength,
+        
+        // Joint 4 + Link 4
+        joint4_direction: robotConfig.joints[3].direction,
+        theta4: robotConfig.joints[3].defaultAngle,
+        link_4_direction: robotConfig.links[4].direction,
+        link_4_length: robotConfig.links[4].defaultLength,
+        
+        // Joint 5 + Link 5
+        joint5_direction: robotConfig.joints[4].direction,
+        theta5: robotConfig.joints[4].defaultAngle,
+        link_5_direction: robotConfig.links[5].direction,
+        link_5_length: robotConfig.links[5].defaultLength,
+        
+        // Joint 6 + Link 6
+        joint6_direction: robotConfig.joints[5].direction,
+        theta6: robotConfig.joints[5].defaultAngle,
+        link_6_direction: robotConfig.links[6].direction,
+        link_6_length: robotConfig.links[6].defaultLength,
+    };
 })();
 
 // Generate GUI configuration from robot definition
 export const guiConfig = (() => {
-    const angles: Record<string, { min: number; max: number }> = {};
-    const lengths: Record<string, { min: number; max: number }> = {};
+    const robotConfig = RobotDefinition.config;
     
     // Generate angle limits for all joints
-    for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
-        const joint = RobotDefinitionUtils.getJointDefinition(i);
-        const angleKey = RobotDefinitionUtils.getJointAngleKey(i);
-        angles[angleKey] = joint.angleRange;
-    }
+    const angles = Object.fromEntries(
+        UserInputKeys.JOINT_ANGLES.map((angleKey, index) => [
+            angleKey, 
+            robotConfig.joints[index].angleRange
+        ])
+    );
     
-    // Generate length limits for all links
-    for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
-        const link = RobotDefinitionUtils.getLinkDefinition(i);
-        const lengthKey = RobotDefinitionUtils.getLinkLengthKey(i);
-        lengths[lengthKey] = link.lengthRange;
-    }
+    // Generate length limits for all links  
+    const lengths = Object.fromEntries(
+        UserInputKeys.LINK_LENGTHS.map((lengthKey, index) => [
+            lengthKey,
+            robotConfig.links[index].lengthRange
+        ])
+    );
     
     return {
         angles,

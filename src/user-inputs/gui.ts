@@ -1,7 +1,6 @@
 import * as dat from 'dat.gui';
-import { UserInputs } from './types';
+import { UserInputs, UserInputKeys } from './types';
 import { guiConfig } from './config';
-import { RobotDefinitionUtils } from '../robot/robot-definition';
 
 export class UserInputsGUI {
     private gui: dat.GUI;
@@ -36,14 +35,13 @@ export class UserInputsGUI {
             return;
         }
         
-        // Dynamically add all joint angle controls based on robot definition
-        for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
-            const angleKey = RobotDefinitionUtils.getJointAngleKey(i) as keyof UserInputs;
+        // Type-safe joint angle controls - no more string generation!
+        UserInputKeys.JOINT_ANGLES.forEach(angleKey => {
             const limits = angles[angleKey];
             if (limits) {
                 this.anglesFolder.add(this.userInputs, angleKey, limits.min, limits.max);
             }
-        }
+        });
         
         this.anglesFolder.open();
     }
@@ -57,13 +55,8 @@ export class UserInputsGUI {
 
         const { lengths } = guiConfig;
         
-        // Generate required length properties from robot definition
-        const requiredLengthProperties = [];
-        for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
-            requiredLengthProperties.push(RobotDefinitionUtils.getLinkLengthKey(i));
-        }
-        
-        for (const property of requiredLengthProperties) {
+        // Validate all required length properties exist
+        for (const property of UserInputKeys.LINK_LENGTHS) {
             if (!lengths[property]) {
                 console.error(`GUI Config Error: guiConfig.lengths.${property} is missing. Using fallback defaults.`);
                 this.setupLengthsFallback();
@@ -85,14 +78,13 @@ export class UserInputsGUI {
         }
 
         try {
-            // Dynamically add all link length controls based on robot definition
-            for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
-                const lengthKey = RobotDefinitionUtils.getLinkLengthKey(i) as keyof UserInputs;
+            // Type-safe link length controls - no more string generation!
+            UserInputKeys.LINK_LENGTHS.forEach(lengthKey => {
                 const limits = lengths[lengthKey];
                 if (limits) {
                     this.lengthFolder.add(this.userInputs, lengthKey, limits.min, limits.max);
                 }
-            }
+            });
             
         } catch (error) {
             console.error('GUI Critical Error: Failed to set up lengths folder with valid config:', error);
@@ -105,11 +97,10 @@ export class UserInputsGUI {
         const fallbackLengthLimits = { min: 0, max: 20 };
         
         try {
-            // Dynamically add all link length controls with fallback limits
-            for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
-                const lengthKey = RobotDefinitionUtils.getLinkLengthKey(i) as keyof UserInputs;
+            // Type-safe link length controls with fallback limits
+            UserInputKeys.LINK_LENGTHS.forEach(lengthKey => {
                 this.lengthFolder.add(this.userInputs, lengthKey, fallbackLengthLimits.min, fallbackLengthLimits.max);
-            }
+            });
             
             console.log('GUI: Successfully set up lengths folder with fallback defaults.');
         } catch (error) {
@@ -135,17 +126,15 @@ export class UserInputsGUI {
         }
 
         try {
-            // Dynamically add all link direction controls
-            for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
-                const linkDirectionKey = RobotDefinitionUtils.getLinkDirectionKey(i) as keyof UserInputs;
+            // Type-safe link direction controls
+            UserInputKeys.LINK_DIRECTIONS.forEach(linkDirectionKey => {
                 this.orientationsFolder.add(this.userInputs, linkDirectionKey, orientations.axisOptions);
-            }
+            });
             
-            // Dynamically add all joint direction controls
-            for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
-                const jointDirectionKey = RobotDefinitionUtils.getJointDirectionKey(i) as keyof UserInputs;
+            // Type-safe joint direction controls
+            UserInputKeys.JOINT_DIRECTIONS.forEach(jointDirectionKey => {
                 this.orientationsFolder.add(this.userInputs, jointDirectionKey, orientations.axisOptions);
-            }
+            });
             
         } catch (error) {
             console.error('GUI Setup Error: Failed to add orientation controls:', error);
@@ -158,17 +147,15 @@ export class UserInputsGUI {
         const fallbackAxisOptions = ['x', 'y', 'z'] as const;
         
         try {
-            // Dynamically add all link direction controls with fallback
-            for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
-                const linkDirectionKey = RobotDefinitionUtils.getLinkDirectionKey(i) as keyof UserInputs;
+            // Type-safe link direction controls with fallback
+            UserInputKeys.LINK_DIRECTIONS.forEach(linkDirectionKey => {
                 this.orientationsFolder.add(this.userInputs, linkDirectionKey, fallbackAxisOptions);
-            }
+            });
             
-            // Dynamically add all joint direction controls with fallback
-            for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
-                const jointDirectionKey = RobotDefinitionUtils.getJointDirectionKey(i) as keyof UserInputs;
+            // Type-safe joint direction controls with fallback
+            UserInputKeys.JOINT_DIRECTIONS.forEach(jointDirectionKey => {
                 this.orientationsFolder.add(this.userInputs, jointDirectionKey, fallbackAxisOptions);
-            }
+            });
             
             console.log('GUI: Successfully set up orientations folder with fallback defaults.');
         } catch (error) {

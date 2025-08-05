@@ -10,7 +10,7 @@ import {
 import { type Axis } from '../shared/types';
 import { type UserInputs } from '../user-inputs';
 import { RobotComponents } from './types';
-import { RobotDefinitionUtils } from './robot-definition';
+import { RobotDefinition } from './robot-definition';
 
 export class RobotBuilder {
     private components: RobotComponents | null = null;
@@ -42,33 +42,23 @@ export class RobotBuilder {
             throw new Error('Robot must be built before updating joint angles');
         }
 
-        // Dynamically update all joint angles based on robot definition
-        const jointFrames = [
-            this.components.joint1frame,
-            this.components.joint2frame,
-            this.components.joint3frame,
-            this.components.joint4frame,
-            this.components.joint5frame,
-            this.components.joint6frame,
+        // Type-safe joint updates - no more string generation or casting!
+        const jointUpdates = [
+            { frame: this.components.joint1frame, angle: userInputs.theta1, direction: userInputs.joint1_direction },
+            { frame: this.components.joint2frame, angle: userInputs.theta2, direction: userInputs.joint2_direction },
+            { frame: this.components.joint3frame, angle: userInputs.theta3, direction: userInputs.joint3_direction },
+            { frame: this.components.joint4frame, angle: userInputs.theta4, direction: userInputs.joint4_direction },
+            { frame: this.components.joint5frame, angle: userInputs.theta5, direction: userInputs.joint5_direction },
+            { frame: this.components.joint6frame, angle: userInputs.theta6, direction: userInputs.joint6_direction },
         ];
         
-        const numJoints = Math.min(RobotDefinitionUtils.getNumJoints(), jointFrames.length);
+        // Only update joints that exist in the robot definition
+        const numJoints = Math.min(RobotDefinition.getNumJoints(), jointUpdates.length);
         for (let i = 0; i < numJoints; i++) {
-            const angleKey = RobotDefinitionUtils.getJointAngleKey(i) as keyof UserInputs;
-            const directionKey = RobotDefinitionUtils.getJointDirectionKey(i) as keyof UserInputs;
-            
-            const angle = userInputs[angleKey];
-            const direction = userInputs[directionKey];
-            
-            if (typeof angle !== 'number') {
-                throw new Error(`Invalid angle value for ${angleKey}: ${angle}`);
-            }
-            if (direction !== 'x' && direction !== 'y' && direction !== 'z') {
-                throw new Error(`Invalid direction value for ${directionKey}: ${direction}`);
-            }
-            
-            this.updateJointRotation(jointFrames[i], angle, direction);
-        }    }
+            const { frame, angle, direction } = jointUpdates[i];
+            this.updateJointRotation(frame, angle, direction);
+        }
+    }
 
     public getTCP(): THREE.AxesHelper | null {
         return this.components?.tcp || null;

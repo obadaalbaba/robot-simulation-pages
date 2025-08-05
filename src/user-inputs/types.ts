@@ -1,12 +1,14 @@
 import { type Axis } from '../shared/types';
 
 /**
- * Generated types based on robot definition
- * These types are dynamically created to match the robot structure
+ * User input types for robot simulation
+ * 
+ * To modify the robot structure, update ROBOT_CONFIG in robot-definition.ts
+ * and then update these types accordingly. In the future, these could be
+ * code-generated from the robot definition.
  */
 
-// Core user input type with all parameters
-export type UserInputs = {
+export interface UserInputs {
     // Link 0
     link_0_direction: Axis;
     link_0_length: number;
@@ -46,58 +48,82 @@ export type UserInputs = {
     theta6: number;
     link_6_direction: Axis;
     link_6_length: number;
-};
+}
 
 // Structural parameters (everything except joint angles)
-export type StructuralParams = {
-    // Link 0
+export interface StructuralParams {
+    // Link parameters
     link_0_direction: Axis;
     link_0_length: number;
-    
-    // Joint 1 + Link 1
-    joint1_direction: Axis;
     link_1_direction: Axis;
     link_1_length: number;
-    
-    // Joint 2 + Link 2
-    joint2_direction: Axis;
     link_2_direction: Axis;
     link_2_length: number;
-    
-    // Joint 3 + Link 3
-    joint3_direction: Axis;
     link_3_direction: Axis;
     link_3_length: number;
-    
-    // Joint 4 + Link 4
-    joint4_direction: Axis;
     link_4_direction: Axis;
     link_4_length: number;
-    
-    // Joint 5 + Link 5
-    joint5_direction: Axis;
     link_5_direction: Axis;
     link_5_length: number;
-    
-    // Joint 6 + Link 6
-    joint6_direction: Axis;
     link_6_direction: Axis;
     link_6_length: number;
-};
+    
+    // Joint directions (angles are not structural)
+    joint1_direction: Axis;
+    joint2_direction: Axis;
+    joint3_direction: Axis;
+    joint4_direction: Axis;
+    joint5_direction: Axis;
+    joint6_direction: Axis;
+}
 
-/**
- * Utility functions for type-safe dynamic property access
- */
+// Type-safe key definitions - no more string generation!
+export const UserInputKeys = {
+    // Link direction keys
+    LINK_DIRECTIONS: [
+        'link_0_direction',
+        'link_1_direction', 
+        'link_2_direction',
+        'link_3_direction',
+        'link_4_direction',
+        'link_5_direction',
+        'link_6_direction'
+    ] as const satisfies readonly (keyof UserInputs)[],
+    
+    // Link length keys
+    LINK_LENGTHS: [
+        'link_0_length',
+        'link_1_length',
+        'link_2_length', 
+        'link_3_length',
+        'link_4_length',
+        'link_5_length',
+        'link_6_length'
+    ] as const satisfies readonly (keyof UserInputs)[],
+    
+    // Joint direction keys
+    JOINT_DIRECTIONS: [
+        'joint1_direction',
+        'joint2_direction',
+        'joint3_direction',
+        'joint4_direction', 
+        'joint5_direction',
+        'joint6_direction'
+    ] as const satisfies readonly (keyof UserInputs)[],
+    
+    // Joint angle keys
+    JOINT_ANGLES: [
+        'theta1',
+        'theta2',
+        'theta3',
+        'theta4',
+        'theta5',
+        'theta6'
+    ] as const satisfies readonly (keyof UserInputs)[],
+} as const;
 
-// Type-safe property accessors
-export const getProperty = <T, K extends keyof T>(obj: T, key: K): T[K] => {
-    return obj[key];
-};
-
-export const getDynamicProperty = <T>(obj: T, key: string): unknown => {
-    return (obj as Record<string, unknown>)[key];
-};
-
-export const setDynamicProperty = (obj: Record<string, unknown>, key: string, value: unknown): void => {
-    obj[key] = value;
-};
+// Type-safe accessors
+export type LinkDirectionKey = typeof UserInputKeys.LINK_DIRECTIONS[number];
+export type LinkLengthKey = typeof UserInputKeys.LINK_LENGTHS[number];
+export type JointDirectionKey = typeof UserInputKeys.JOINT_DIRECTIONS[number];
+export type JointAngleKey = typeof UserInputKeys.JOINT_ANGLES[number];

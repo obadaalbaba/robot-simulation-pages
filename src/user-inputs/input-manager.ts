@@ -1,7 +1,6 @@
-import { UserInputs, StructuralParams, getDynamicProperty, setDynamicProperty } from './types';
+import { UserInputs, StructuralParams, UserInputKeys } from './types';
 import { defaultUserInputs } from './config';
 import { UserInputsGUI } from './gui';
-import { RobotDefinitionUtils } from '../robot/robot-definition';
 
 export type StructuralChangeCallback = (params: UserInputs) => void;
 export type JointUpdateCallback = (params: UserInputs) => void;
@@ -65,22 +64,22 @@ export class UserInputManager {
         const current = this.extractStructuralParams(this.userInputs);
         const previous = this.previousStructuralParams;
 
-        // Dynamically check all link parameters
-        for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
-            const linkDirectionKey = `link_${i}_direction`;
-            const linkLengthKey = `link_${i}_length`;
-            
-            if (getDynamicProperty(previous, linkDirectionKey) !== getDynamicProperty(current, linkDirectionKey) ||
-                getDynamicProperty(previous, linkLengthKey) !== getDynamicProperty(current, linkLengthKey)) {
+        // Type-safe check of all link parameters
+        for (const linkDirectionKey of UserInputKeys.LINK_DIRECTIONS) {
+            if (previous[linkDirectionKey] !== current[linkDirectionKey]) {
                 return true;
             }
         }
         
-        // Dynamically check all joint direction parameters
-        for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
-            const jointDirectionKey = `joint${i + 1}_direction`;
-            
-            if (getDynamicProperty(previous, jointDirectionKey) !== getDynamicProperty(current, jointDirectionKey)) {
+        for (const linkLengthKey of UserInputKeys.LINK_LENGTHS) {
+            if (previous[linkLengthKey] !== current[linkLengthKey]) {
+                return true;
+            }
+        }
+        
+        // Type-safe check of all joint direction parameters  
+        for (const jointDirectionKey of UserInputKeys.JOINT_DIRECTIONS) {
+            if (previous[jointDirectionKey] !== current[jointDirectionKey]) {
                 return true;
             }
         }
@@ -89,24 +88,34 @@ export class UserInputManager {
     }
 
     private extractStructuralParams(inputs: UserInputs): StructuralParams {
-        const params = {} as Record<string, unknown>;
-        
-        // Extract all link parameters
-        for (let i = 0; i < RobotDefinitionUtils.getNumLinks(); i++) {
-            const linkDirectionKey = `link_${i}_direction`;
-            const linkLengthKey = `link_${i}_length`;
+        // Type-safe extraction of structural parameters - no casting needed!
+        return {
+            // Link directions
+            link_0_direction: inputs.link_0_direction,
+            link_1_direction: inputs.link_1_direction,
+            link_2_direction: inputs.link_2_direction,
+            link_3_direction: inputs.link_3_direction,
+            link_4_direction: inputs.link_4_direction,
+            link_5_direction: inputs.link_5_direction,
+            link_6_direction: inputs.link_6_direction,
             
-            setDynamicProperty(params, linkDirectionKey, getDynamicProperty(inputs, linkDirectionKey));
-            setDynamicProperty(params, linkLengthKey, getDynamicProperty(inputs, linkLengthKey));
-        }
-        
-        // Extract all joint direction parameters (angles are not structural)
-        for (let i = 0; i < RobotDefinitionUtils.getNumJoints(); i++) {
-            const jointDirectionKey = `joint${i + 1}_direction`;
-            setDynamicProperty(params, jointDirectionKey, getDynamicProperty(inputs, jointDirectionKey));
-        }
-        
-        return params as StructuralParams;
+            // Link lengths
+            link_0_length: inputs.link_0_length,
+            link_1_length: inputs.link_1_length,
+            link_2_length: inputs.link_2_length,
+            link_3_length: inputs.link_3_length,
+            link_4_length: inputs.link_4_length,
+            link_5_length: inputs.link_5_length,
+            link_6_length: inputs.link_6_length,
+            
+            // Joint directions (angles are not structural)
+            joint1_direction: inputs.joint1_direction,
+            joint2_direction: inputs.joint2_direction,
+            joint3_direction: inputs.joint3_direction,
+            joint4_direction: inputs.joint4_direction,
+            joint5_direction: inputs.joint5_direction,
+            joint6_direction: inputs.joint6_direction,
+        };
     }
 
     public destroy(): void {
