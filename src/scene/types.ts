@@ -17,6 +17,7 @@ export interface SceneConfig {
     };
     referenceFrame: {
         size: number;
+        thickness: number;
     };
 }
 
@@ -26,5 +27,5 @@ export interface SceneComponents {
     camera: THREE.OrthographicCamera;
     controls: OrbitControls;
     grid: THREE.GridHelper;
-    worldReferenceFrame: THREE.AxesHelper;
+    worldReferenceFrame: THREE.Group;
 }

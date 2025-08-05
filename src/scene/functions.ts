@@ -52,8 +52,32 @@ export function createControls(camera: THREE.Camera, renderer: THREE.WebGLRender
     return controls;
 }
 
-export function createReferenceFrame(referenceFrameConfig: SceneConfig['referenceFrame']): THREE.AxesHelper {
-    const axesHelper = new THREE.AxesHelper(referenceFrameConfig.size);
-
-    return axesHelper;
+export function createReferenceFrame(referenceFrameConfig: SceneConfig['referenceFrame']): THREE.Group {
+    const { size, thickness } = referenceFrameConfig;
+    const axesGroup = new THREE.Group();
+    
+    // Create cylinder geometry for axes
+    const cylinderGeometry = new THREE.CylinderGeometry(thickness, thickness, size, 8);
+    
+    // X-axis (Red)
+    const xMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    const xAxis = new THREE.Mesh(cylinderGeometry, xMaterial);
+    xAxis.rotation.z = -Math.PI / 2; // Rotate to point along X-axis
+    xAxis.position.x = size / 2; // Position at half the length to center
+    axesGroup.add(xAxis);
+    
+    // Y-axis (Green) 
+    const yMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const yAxis = new THREE.Mesh(cylinderGeometry, yMaterial);
+    yAxis.position.y = size / 2; // No rotation needed, cylinder is already vertical
+    axesGroup.add(yAxis);
+    
+    // Z-axis (Blue)
+    const zMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+    const zAxis = new THREE.Mesh(cylinderGeometry, zMaterial);
+    zAxis.rotation.x = Math.PI / 2; // Rotate to point along Z-axis
+    zAxis.position.z = size / 2;
+    axesGroup.add(zAxis);
+    
+    return axesGroup;
 }

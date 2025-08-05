@@ -67,7 +67,7 @@ export class SceneManager {
         return this.components.controls;
     }
 
-    public getWorldReferenceFrame(): THREE.AxesHelper {
+    public getWorldReferenceFrame(): THREE.Group {
         return this.components.worldReferenceFrame;
     }
 

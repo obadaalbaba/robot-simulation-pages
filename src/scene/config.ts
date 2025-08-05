@@ -15,6 +15,7 @@ export const defaultSceneConfig: SceneConfig = {
         divisions: 20,
     },
     referenceFrame: {
-        size: 20,
+        size: 15,
+        thickness: 0.08,
     }
 };
