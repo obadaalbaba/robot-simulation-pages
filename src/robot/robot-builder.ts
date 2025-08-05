@@ -74,7 +74,7 @@ export class RobotBuilder {
     public calculateAndLogTransformations(): void {
         console.log('=== WORLD POSITIONS ===');
         for (let i = 0; i <= 6; i++) {
-            const frame = this.getLinkEndFrame(i as any);
+            const frame = this.getLinkEndFrame(i as LinkIndex);
             const pos = new THREE.Vector3();
             frame?.getWorldPosition(pos);
             console.log(`Link ${i} end world position:`, pos);
