@@ -55,11 +55,11 @@ export const ROBOT_CONFIG = {
         // Link 3
         { direction: 'y', defaultLength: 15, lengthRange: { min: 0, max: 20 } },
         // Link 4
-        { direction: 'x', defaultLength: 8, lengthRange: { min: 0, max: 20 } },
+        { direction: 'x', defaultLength: 5, lengthRange: { min: 0, max: 20 } },
         // Link 5
-        { direction: 'z', defaultLength: 8, lengthRange: { min: 0, max: 20 } },
+        { direction: 'z', defaultLength: 4, lengthRange: { min: 0, max: 20 } },
         // Link 6
-        { direction: 'y', defaultLength: 5, lengthRange: { min: 0, max: 20 } },
+        { direction: 'y', defaultLength: 2, lengthRange: { min: 0, max: 20 } },
     ],
     joints: [
         // Joint 1
