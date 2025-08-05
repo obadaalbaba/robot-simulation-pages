@@ -5,6 +5,32 @@ import { type Axis } from '../shared/types';
  * for robot structure, defaults, and validation limits.
  */
 
+// Visual constants for robot rendering
+export const VISUAL_CONSTANTS = {
+  // Axes sizes
+  LINK_ORIGIN_AXES_SIZE: 3,
+  LINK_END_AXES_SIZE: 3,
+  JOINT_FRAME_AXES_SIZE: 5,
+  TCP_FRAME_AXES_SIZE: 5,
+  
+  // Line widths
+  STANDARD_LINE_WIDTH: 1,
+  THICK_LINE_WIDTH: 2,
+  
+  // Geometry
+  LINK_RADIUS: 1,
+  JOINT_RADIUS: 1.5,
+  JOINT_HEIGHT: 2,
+  CYLINDER_RADIAL_SEGMENTS: 32,
+  
+  // Colors
+  LINK_COLOR: 0xc0c0c0, // Light Grey
+  JOINT_COLOR: 0x4682b4, // Steel Blue
+  
+  // Mathematical constants
+  DEGREES_TO_RADIANS: 180,
+} as const;
+
 export interface JointDefinition {
     direction: Axis;
     defaultAngle: number;

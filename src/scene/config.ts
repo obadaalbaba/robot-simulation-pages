@@ -1,7 +1,7 @@
 import { SceneConfig } from './types';
 
 export const defaultSceneConfig: SceneConfig = {
-    backgroundColor: 0x808080,
+    backgroundColor: 0x000000, // Black
     camera: {
         positionZ: 100,
         positionY: 100,
