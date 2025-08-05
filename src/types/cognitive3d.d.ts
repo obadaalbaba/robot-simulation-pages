@@ -1,4 +1,4 @@
-declare module '@cognitive3d/analytics' {
+declare module 'cognitive-3d-analytics/lib' {
   interface C3DConfig {
     APIKey: string;
     allSceneData: Array<{
@@ -39,8 +39,8 @@ declare module '@cognitive3d/analytics' {
   export default C3DAnalytics;
 }
 
-declare module '@cognitive3d/analytics/adapters/threejs' {
-  import C3DAnalytics from '@cognitive3d/analytics';
+declare module 'cognitive-3d-analytics/adapters/threejs' {
+  import C3DAnalytics from 'cognitive-3d-analytics/lib';
   import { Vector3, Quaternion, Camera } from 'three';
 
   class C3DThreeAdapter {

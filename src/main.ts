@@ -4,33 +4,14 @@ import { RobotBuilder } from './robot';
 import { AnalyticsMonitor } from './analytics';
 import { MONITOR_INTERVAL_SECONDS } from './constants';
 
-const requiredEnvVars = [
-    'VITE_C3D_API_KEY',
-    'VITE_C3D_SCENE_NAME',
-    'VITE_C3D_SCENE_ID',
-    'VITE_C3D_VERSION'
-];
-const missingVars = requiredEnvVars.filter(varName => !import.meta.env[varName]);
-
-if (missingVars.length > 0) {
-    console.error('Missing required environment variables:', missingVars);
-}
-
-const hasValidCredentials = missingVars.length === 0 && 
-    import.meta.env.VITE_C3D_API_KEY !== 'your_api_key_here';
-const analyticsMonitor = new AnalyticsMonitor({
-    apiKey: import.meta.env.VITE_C3D_API_KEY,
-    sceneName: import.meta.env.VITE_C3D_SCENE_NAME,
-    sceneId: import.meta.env.VITE_C3D_SCENE_ID,
-    versionNumber: import.meta.env.VITE_C3D_VERSION
-}); 
+// Initialize analytics monitor with settings from analytics-monitor.ts
+const analyticsMonitor = new AnalyticsMonitor(); 
 const sceneManager = new SceneManager();
 const camera = sceneManager.getCamera();
 
-if (hasValidCredentials) {
+if (analyticsMonitor.hasValidCredentials()) {
     analyticsMonitor.start(camera);
 } else {
-    console.warn('Starting FPS monitor without gaze tracking (missing/invalid credentials)');
     analyticsMonitor.start();
 }
 
@@ -51,7 +32,7 @@ inputManager.onJointUpdate((params) => {
 inputManager.startMonitoring(MONITOR_INTERVAL_SECONDS);
 
 sceneManager.startAnimation(() => {
-    if (hasValidCredentials && analyticsMonitor.isGazeTrackingEnabled()) {
+    if (analyticsMonitor.hasValidCredentials() && analyticsMonitor.isGazeTrackingEnabled()) {
         analyticsMonitor.recordGaze();
     }
 });

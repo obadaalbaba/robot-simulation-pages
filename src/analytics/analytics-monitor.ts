@@ -1,16 +1,16 @@
 /// <reference types="webxr" />
 
-import C3DAnalytics from '@cognitive3d/analytics';
-import C3DThreeAdapter from '@cognitive3d/analytics/adapters/threejs';
+import C3DAnalytics from 'cognitive-3d-analytics/lib';
+import C3DThreeAdapter from 'cognitive-3d-analytics/adapters/threejs';
 import * as THREE from 'three';
-
-
+// @ts-ignore
+import mySettings from './settings';
 
 export interface AnalyticsMonitorConfig {
-    apiKey: string;
-    sceneName: string;
-    sceneId: string;
-    versionNumber: string;
+    apiKey?: string;
+    sceneName?: string;
+    sceneId?: string;
+    versionNumber?: string;
 }
 
 export interface FPSMetrics {
@@ -29,27 +29,79 @@ export class AnalyticsMonitor {
     private lastGazeTime: number = 0;
     private gazeRecordingInterval: number = 100; // Record gaze every 100ms (10 times per second)
 
-    constructor(config: AnalyticsMonitorConfig) {
-        // Initialize C3D Analytics
-        this.c3d = new C3DAnalytics({
-            config: {
-                APIKey: config.apiKey,
-                allSceneData: [{
-                    sceneName: config.sceneName,
-                    sceneId: config.sceneId,
-                    versionNumber: config.versionNumber
-                }]
-            }
-        });
+    constructor(config: AnalyticsMonitorConfig = {}) {
+        // Get configuration from settings file, allow override from config parameter
+        const settingsConfig = mySettings.config;
+        const sceneData = settingsConfig.allSceneData[0];
+        
+        const finalConfig = {
+            apiKey: config.apiKey || settingsConfig.APIKey,
+            sceneName: config.sceneName || sceneData?.sceneName,
+            sceneId: config.sceneId || sceneData?.sceneId,
+            versionNumber: config.versionNumber || sceneData?.versionNumber
+        };
+
+        // Initialize C3D Analytics with full settings
+        this.c3d = new C3DAnalytics(mySettings);
 
         // Create adapter
         this.adapter = new C3DThreeAdapter(this.c3d);
 
+        // Set user metadata as recommended by C3D documentation
+        this.setupUserMetadata();
+
         // Set the current scene
-        this.c3d.setScene(config.sceneName);
+        if (finalConfig.sceneName) {
+            this.c3d.setScene(finalConfig.sceneName);
+        }
         
         // Create FPS display element
         this.createFPSDisplay();
+    }
+
+    private setupUserMetadata(): void {
+        // Set required user properties as per C3D documentation
+        // Using setDeviceProperty as it's the available method in the SDK
+        this.c3d.setDeviceProperty("c3d.version", "0.1");
+        this.c3d.setDeviceProperty("c3d.app.version", "0.1");
+        this.c3d.setDeviceProperty("c3d.app.engine", "threejs");
+        this.c3d.setDeviceProperty("c3d.deviceid", this.generateDeviceId());
+
+        // Set device information from settings
+        const settingsConfig = mySettings.config;
+        if (settingsConfig.HMDType) {
+            this.c3d.setDeviceProperty("HMDType", settingsConfig.HMDType);
+        }
+        
+        // Set a default user ID using device property
+        this.c3d.setDeviceProperty("userId", this.generateUserId());
+    }
+
+    private generateDeviceId(): string {
+        // Generate a simple device ID based on browser fingerprint
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        ctx?.fillText('device-id', 10, 10);
+        const fingerprint = canvas.toDataURL();
+        return btoa(fingerprint).substring(0, 16);
+    }
+
+    private generateUserId(): string {
+        // Generate a simple user ID for analytics
+        return 'user_' + Math.random().toString(36).substring(2, 15);
+    }
+
+    public hasValidCredentials(): boolean {
+        const settingsConfig = mySettings.config;
+        const sceneData = settingsConfig.allSceneData[0];
+        
+        return !!(settingsConfig.APIKey && 
+                 settingsConfig.APIKey !== 'your_api_key_here' && 
+                 settingsConfig.APIKey !== 'ASDF1234ASDF' &&
+                 sceneData && 
+                 sceneData.sceneName && 
+                 sceneData.sceneId && 
+                 sceneData.versionNumber);
     }
 
     private createFPSDisplay(): void {
@@ -107,17 +159,22 @@ export class AnalyticsMonitor {
             console.error('❌ FPS tracker not available');
         }
 
-        // Start C3D session with simulated XR support
+        // Start C3D session following documentation guidelines
         try {
-            // Create a mock XR session object for better analytics quality
-            const mockXRSession = this.createMockXRSession();
-            await this.c3d.startSession(mockXRSession);
-            
-            if (camera) {
-                this.gazeTrackingEnabled = true;
-                console.log('✅ C3D Analytics session started with simulated XR (gaze tracking enabled)');
+            if (this.hasValidCredentials()) {
+                // Create a mock XR session object for better analytics quality
+                const mockXRSession = this.createMockXRSession();
+                await this.c3d.startSession(mockXRSession);
+                
+                if (camera) {
+                    this.gazeTrackingEnabled = true;
+                    console.log('✅ C3D Analytics session started with valid credentials (gaze tracking enabled)');
+                } else {
+                    console.log('✅ C3D Analytics session started with valid credentials (no gaze tracking)');
+                }
             } else {
-                console.log('✅ C3D Analytics session started with simulated XR (no gaze tracking)');
+                console.warn('⚠️ Starting FPS monitor without C3D Analytics (missing/invalid credentials)');
+                console.warn('⚠️ Please check your settings.js file for valid API key and scene data');
             }
         } catch (error) {
             console.warn('⚠️ C3D session start failed:', error);
