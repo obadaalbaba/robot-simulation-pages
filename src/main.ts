@@ -38,18 +38,18 @@ const sceneExporter = new SceneExporter();
 const inputManager = new UserInputManager(undefined, ()=>sceneExporter.exportForCognitive3D(sceneManager.getScene()));
 const robotBuilder = new RobotBuilder(sceneManager.getWorldReferenceFrame());
 const userInputs = inputManager.getUserInputs();
-let robot = robotBuilder.buildRobot(userInputs);
+robotBuilder.buildRobot(userInputs);
 
-console.log('robot', robot);
+console.log('robot', robotBuilder);
 
 inputManager.onStructuralChange((params) => {
-    robot = robotBuilder.rebuildRobot(params);
-    console.log('robot', robot);
+    robotBuilder.rebuildRobot(params);
+    console.log('robot', robotBuilder);
 });
 
 inputManager.onJointUpdate((params) => {
-    robot = robotBuilder.updateJointAngles(params);
-    console.log('robot', robot);
+    robotBuilder.updateJointAngles(params);
+    console.log('robot', robotBuilder);
 });
 
 inputManager.startMonitoring(MONITOR_INTERVAL_SECONDS);

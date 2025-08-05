@@ -7,12 +7,18 @@ export interface RobotComponents {
     link1origin: THREE.AxesHelper;
     link2origin: THREE.AxesHelper;
     link3origin: THREE.AxesHelper;
+    link4origin: THREE.AxesHelper;
+    link5origin: THREE.AxesHelper;
+    link6origin: THREE.AxesHelper;
     
     // Link end frames (coordinate frames at end of each link)
     link0end: THREE.AxesHelper;
     link1end: THREE.AxesHelper;
     link2end: THREE.AxesHelper;
     link3end: THREE.AxesHelper;
+    link4end: THREE.AxesHelper;
+    link5end: THREE.AxesHelper;
+    link6end: THREE.AxesHelper;
     
     // Joint frames (coordinate frames that rotate with joints)
     joint1frame: THREE.AxesHelper;

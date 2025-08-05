@@ -20,29 +20,23 @@ export class RobotBuilder {
         this.worldReferenceFrame = worldReferenceFrame;
     }
 
-    public buildRobot(userInputs: UserInputs): RobotComponents {
-        // Remove existing robot if any
+    public buildRobot(userInputs: UserInputs): void {
         if (this.components) {
             this.destroyRobot();
         }
 
-        // Build the robot structure
-        const components = this.constructRobotStructure(userInputs);
-        this.components = components;
-
-        return components;
+        this.components = this.constructRobotStructure(userInputs);
     }
 
-    public rebuildRobot(userInputs: UserInputs): RobotComponents {
-        return this.buildRobot(userInputs);
+    public rebuildRobot(userInputs: UserInputs): void {
+        this.buildRobot(userInputs);
     }
 
-    public updateJointAngles(userInputs: UserInputs): RobotComponents {
+    public updateJointAngles(userInputs: UserInputs): void {
         if (!this.components) {
             throw new Error('Robot must be built before updating joint angles');
         }
 
-        // Type-safe joint updates - no more string generation or casting!
         const jointUpdates = [
             { frame: this.components.joint1frame, angle: userInputs.theta1, direction: userInputs.joint1_direction },
             { frame: this.components.joint2frame, angle: userInputs.theta2, direction: userInputs.joint2_direction },
@@ -50,16 +44,13 @@ export class RobotBuilder {
             { frame: this.components.joint4frame, angle: userInputs.theta4, direction: userInputs.joint4_direction },
             { frame: this.components.joint5frame, angle: userInputs.theta5, direction: userInputs.joint5_direction },
             { frame: this.components.joint6frame, angle: userInputs.theta6, direction: userInputs.joint6_direction },
-        ];
-        
-        // Only update joints that exist in the robot definition
+        ];        
         const numJoints = Math.min(RobotDefinition.getNumJoints(), jointUpdates.length);
+
         for (let i = 0; i < numJoints; i++) {
             const { frame, angle, direction } = jointUpdates[i];
             this.updateJointRotation(frame, angle, direction);
         }
-
-        return this.components;
     }
 
     public getTCP(): THREE.AxesHelper | null {
@@ -68,7 +59,6 @@ export class RobotBuilder {
 
     private destroyRobot(): void {
         if (this.components) {
-            // Remove the robot hierarchy from the world reference frame
             this.worldReferenceFrame.remove(this.components.link0origin);
             this.components = null;
         }
@@ -142,10 +132,16 @@ export class RobotBuilder {
             link1origin,
             link2origin,
             link3origin,
+            link4origin,
+            link5origin,
+            link6origin,
             link0end,
             link1end,
             link2end,
             link3end,
+            link4end,
+            link5end,
+            link6end,
             joint1frame,
             joint2frame,
             joint3frame,
