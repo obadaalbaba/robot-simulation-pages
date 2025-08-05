@@ -32,7 +32,7 @@ export class UserInputManager {
         this.jointUpdateCallbacks.push(callback);
     }
 
-    public startMonitoring(intervalMs: number = 120): void {
+    public startMonitoring(intervalMs: number): void {
         if (this.updateInterval !== null) {
             this.stopMonitoring();
         }
