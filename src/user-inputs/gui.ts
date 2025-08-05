@@ -12,7 +12,6 @@ export class UserInputsGUI {
     constructor(private userInputs: UserInputs, private exportFunction?: () => void) {
         this.gui = new dat.GUI();
         
-        // Initialize folders directly in constructor
         this.anglesFolder = this.gui.addFolder('Angles');
         this.lengthFolder = this.gui.addFolder('Lengths');
         this.orientationsFolder = this.gui.addFolder('Orientations');
@@ -35,7 +34,6 @@ export class UserInputsGUI {
             return;
         }
         
-        // Type-safe joint angle controls - no more string generation!
         UserInputKeys.JOINT_ANGLES.forEach(angleKey => {
             const limits = angles[angleKey];
             if (limits) {
