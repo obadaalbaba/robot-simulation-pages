@@ -7,7 +7,7 @@ export default {
       dynamicDataLimit: 64, // Number of Dynamic Object snapshots stored in a batch before sending to server
       customEventBatchSize: 64, // Number of Custom Event snapshots stored in a batch before sending to server
       sensorDataLimit: 64, // Number of Sensor snapshots stored in a batch before sending to server
-      HMDType: "Meta Quest 3", // Defaut HMD Type set in Metadata for this project. You can overwrite this at run time via Metadata methods.
+      HMDType: "WindowsPCBrowserVR", // HMD Type for desktop/web usage - ensures accurate analytics categorization
       allSceneData: [
         // Scene data can be found on the Dashboard
         {

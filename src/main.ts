@@ -38,5 +38,5 @@ sceneManager.startAnimation(() => {
 });
 
 // Make analytics monitor available globally for debugging
-// Session will automatically end after 2 minutes, or call analyticsMonitor.endSession() manually
+// Session will automatically end after 2 minutes
 (globalThis as any).analyticsMonitor = analyticsMonitor;

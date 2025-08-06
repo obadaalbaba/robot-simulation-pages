@@ -1,7 +1,6 @@
 /// <reference types="webxr" />
 
 import C3DAnalytics from '@cognitive3d/analytics';
-// Note: Using direct C3D API instead of adapter for Step 7 compliance
 // import C3DThreeAdapter from '@cognitive3d/analytics/adapters/threejs';
 import * as THREE from 'three';
 // @ts-ignore
@@ -32,71 +31,16 @@ export class AnalyticsMonitor {
     private sessionTimeout?: number;
     private sessionDurationMs: number = 2 * 60 * 1000; // 2 minutes in milliseconds
 
-    constructor(config: AnalyticsMonitorConfig = {}) {
-        // Get configuration from settings file, allow override from config parameter
-        const settingsConfig = mySettings.config;
-        const sceneData = settingsConfig.allSceneData[0];
-        
-        const finalConfig = {
-            apiKey: config.apiKey || settingsConfig.APIKey,
-            sceneName: config.sceneName || sceneData?.sceneName,
-            sceneId: config.sceneId || sceneData?.sceneId,
-            versionNumber: config.versionNumber || sceneData?.versionNumber
-        };
-
-        // Initialize C3D Analytics with full settings
+    constructor() {
         this.c3d = new C3DAnalytics(mySettings);
-
-        // Set up basic user metadata (Step 5 from documentation)
         this.setupBasicUserMetadata();
-
-        // Store scene name for later use in startSession (Step 6)
-        this.sceneName = finalConfig.sceneName;
-        
-        // Create FPS display element
+        this.sceneName = mySettings.config.allSceneData[0].sceneName;
         this.createFPSDisplay();
     }
 
-    private setupBasicUserMetadata(): void {
-        // Step 5: Add user metadata (basic setup only, required properties added later in Step 6)
-        // Set required userId property (direct assignment as per documentation)
-        this.c3d.userId = this.generateUserId();
-        
-        // Set a friendly user name
-        this.c3d.setUserName("Robot Simulation User");
-
-        // Set device information from settings
-        const settingsConfig = mySettings.config;
-        if (settingsConfig.HMDType) {
-            this.c3d.setDeviceName(settingsConfig.HMDType);
-        }
-        
-        // Set device properties
-        this.c3d.setDeviceProperty("AppName", "Robot Simulation");
-        this.c3d.setDeviceProperty("AppVersion", "1.0.0");
-    }
-
-    private setupRequiredSessionProperties(): void {
-        // Step 6: Add these 4 required property names to the session (right before startSession)
-        this.c3d.setUserProperty("c3d.version", "0.1");
-        this.c3d.setUserProperty("c3d.app.version", "0.1");
-        this.c3d.setUserProperty("c3d.app.engine", "threejs");
-        this.c3d.setUserProperty("c3d.deviceid", this.generateDeviceId());
-    }
-
-    private generateDeviceId(): string {
-        // Generate a simple device ID based on browser fingerprint
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        ctx?.fillText('device-id', 10, 10);
-        const fingerprint = canvas.toDataURL();
-        return btoa(fingerprint).substring(0, 16);
-    }
-
-    private generateUserId(): string {
-        // Generate a simple user ID for analytics
-        return 'user_' + Math.random().toString(36).substring(2, 15);
-    }
+    // =============================================================================
+    // PUBLIC METHODS
+    // =============================================================================
 
     public hasValidCredentials(): boolean {
         const settingsConfig = mySettings.config;
@@ -109,45 +53,6 @@ export class AnalyticsMonitor {
                  sceneData.sceneName && 
                  sceneData.sceneId && 
                  sceneData.versionNumber);
-    }
-
-    private createFPSDisplay(): void {
-        this.fpsDisplay.id = 'fps-monitor';
-        this.fpsDisplay.style.cssText = `
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #00ff00;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 10000;
-            user-select: none;
-            pointer-events: none;
-            border: 1px solid rgba(0, 255, 0, 0.3);
-        `;
-        this.fpsDisplay.textContent = 'FPS: Initializing...';
-        document.body.appendChild(this.fpsDisplay);
-    }
-
-    private ensureFPSDisplay(): HTMLElement {
-        if (!this.fpsDisplay) {
-            this.createFPSDisplay();
-        }
-        return this.fpsDisplay!;
-    }
-
-    private updateFPSDisplay(metrics: FPSMetrics): void {
-        this.ensureFPSDisplay().innerHTML = `
-            FPS: ${metrics.avg.toFixed(1)}<br>
-            1%L: ${metrics['1pl'].toFixed(1)}
-        `;
-        
-        // Call external callback if provided
-        this.onFPSUpdate?.(metrics);
     }
 
     public async start(camera?: THREE.OrthographicCamera): Promise<void> {
@@ -238,54 +143,86 @@ export class AnalyticsMonitor {
         return this.gazeTrackingEnabled;
     }
 
-    public setGazeRecordingFrequency(intervalMs: number): void {
-        this.gazeRecordingInterval = Math.max(50, intervalMs); // Minimum 50ms (20fps max)
-        console.log(`🎯 Gaze recording frequency set to ${1000/this.gazeRecordingInterval}fps`);
-    }
+    // =============================================================================
+    // PRIVATE METHODS - Initialization & Setup
+    // =============================================================================
 
-    // Public methods for user metadata configuration following C3D documentation
-    public setUserId(userId: string): void {
-        this.c3d.userId = userId;
-    }
+    private setupBasicUserMetadata(): void {
+        this.c3d.userId = this.generateUserId();
+        this.c3d.setUserName("Robot Simulation User");
 
-    public setUserName(userName: string): void {
-        this.c3d.setUserName(userName);
-    }
+        const settingsConfig = mySettings.config;
 
-    public setUserProperty(key: string, value: string | number | boolean): void {
-        this.c3d.setUserProperty(key, value);
-    }
-
-    public setDeviceName(deviceName: string): void {
-        this.c3d.setDeviceName(deviceName);
-    }
-
-    public setDeviceProperty(key: string, value: string | number | boolean): void {
-        this.c3d.setDeviceProperty(key, value);
-    }
-
-    // Step 7: Direct gaze recording methods following documentation
-    public recordGazeData(pos: number[], rot: number[], gaze?: number[], objectId?: string): void {
-        if (this.gazeTrackingEnabled) {
-            try {
-                this.c3d.gaze.recordGaze(pos, rot, gaze, objectId);
-            } catch (error) {
-                console.warn('⚠️ Direct gaze recording error:', error);
-            }
+        if (settingsConfig.HMDType) {
+            this.c3d.setDeviceName(settingsConfig.HMDType);
         }
+        
+        this.c3d.setDeviceProperty("AppName", "Robot_Simulation");
+        this.c3d.setDeviceProperty("AppVersion", "1.0.0");
     }
 
-    public recordGazeAtObject(pos: number[], rot: number[], gaze: number[], objectId: string): void {
-        // Step 7: Record gaze at a Dynamic Object
-        this.recordGazeData(pos, rot, gaze, objectId);
+    private setupRequiredSessionProperties(): void {
+        this.c3d.setUserProperty("c3d.version", "0.1");
+        this.c3d.setUserProperty("c3d.app.version", "0.1");
+        this.c3d.setUserProperty("c3d.app.engine", "threejs");
+        this.c3d.setUserProperty("c3d.deviceid", this.generateDeviceId());
     }
 
-    public recordGazeAtScene(pos: number[], rot: number[]): void {
-        // Step 7: Record gaze at static scene (no gaze point or objectId)
-        this.recordGazeData(pos, rot);
+    private generateDeviceId(): string {
+        return 'threejs_windows_device_' + Date.now();
     }
 
-    // Session management methods
+    private generateUserId(): string {
+        return 'user_' + Date.now();
+    }
+
+    // =============================================================================
+    // PRIVATE METHODS - FPS Display
+    // =============================================================================
+
+    private createFPSDisplay(): void {
+        this.fpsDisplay.id = 'fps-monitor';
+        this.fpsDisplay.style.cssText = `
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10000;
+            user-select: none;
+            pointer-events: none;
+            border: 1px solid rgba(0, 255, 0, 0.3);
+        `;
+        this.fpsDisplay.textContent = 'FPS: Initializing...';
+        document.body.appendChild(this.fpsDisplay);
+    }
+
+    private ensureFPSDisplay(): HTMLElement {
+        if (!this.fpsDisplay) {
+            this.createFPSDisplay();
+        }
+        return this.fpsDisplay!;
+    }
+
+    private updateFPSDisplay(metrics: FPSMetrics): void {
+        this.ensureFPSDisplay().innerHTML = `
+            FPS: ${metrics.avg.toFixed(1)}<br>
+            1%L: ${metrics['1pl'].toFixed(1)}
+        `;
+        
+        // Call external callback if provided
+        this.onFPSUpdate?.(metrics);
+    }
+
+    // =============================================================================
+    // PRIVATE METHODS - Session Management
+    // =============================================================================
+
     private scheduleSessionEnd(): void {
         // Clear any existing timeout
         if (this.sessionTimeout) {
@@ -300,7 +237,7 @@ export class AnalyticsMonitor {
         console.log(`⏱️ C3D Analytics session will automatically end in ${this.sessionDurationMs / 1000} seconds`);
     }
 
-    public async endSession(): Promise<void> {
+    private async endSession(): Promise<void> {
         try {
             if (this.c3d.isSessionActive()) {
                 await this.c3d.endSession();
@@ -322,39 +259,9 @@ export class AnalyticsMonitor {
         }
     }
 
-    public setSessionDuration(durationMs: number): void {
-        this.sessionDurationMs = Math.max(30000, durationMs); // Minimum 30 seconds
-        console.log(`⏱️ Session duration set to ${this.sessionDurationMs / 1000} seconds`);
-    }
-
-    public isSessionActive(): boolean {
-        return this.c3d.isSessionActive();
-    }
-
-    public async cleanup(): Promise<void> {
-        // End the session if it's still active
-        if (this.isSessionActive()) {
-            await this.endSession();
-        }
-        
-        // Clear any pending timeouts
-        if (this.sessionTimeout) {
-            clearTimeout(this.sessionTimeout);
-            this.sessionTimeout = undefined;
-        }
-        
-        // Stop FPS monitoring
-        if (this.c3d.fpsTracker) {
-            this.c3d.fpsTracker.stop();
-        }
-        
-        // Remove FPS display
-        if (this.fpsDisplay && this.fpsDisplay.parentNode) {
-            this.fpsDisplay.parentNode.removeChild(this.fpsDisplay);
-        }
-        
-        console.log('🧹 AnalyticsMonitor cleanup completed');
-    }
+    // =============================================================================
+    // PRIVATE METHODS - XR Session Mock
+    // =============================================================================
 
     private createMockXRSession(): Partial<XRSession> {
         // Minimal mock XR session - only implement methods that are actually used
