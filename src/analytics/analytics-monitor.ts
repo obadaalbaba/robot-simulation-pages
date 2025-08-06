@@ -136,9 +136,10 @@ export class AnalyticsMonitor {
             console.log('✅ FPS monitoring stopped');
         }
         
-        // Hide FPS display
-        if (this.fpsDisplay && this.fpsDisplay.parentNode) {
-            this.fpsDisplay.style.display = 'none';
+        // Show the initial message in FPS display
+        if (this.fpsDisplay) {
+            this.fpsDisplay.textContent = 'Click on the "Start Analytics" button to start the analytics session';
+            this.fpsDisplay.style.display = 'block';
         }
     }
 
