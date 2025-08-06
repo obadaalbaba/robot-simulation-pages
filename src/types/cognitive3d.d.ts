@@ -1,4 +1,4 @@
-declare module 'cognitive-3d-analytics/lib' {
+declare module '@cognitive3d/analytics' {
   interface C3DConfig {
     APIKey: string;
     allSceneData: Array<{
@@ -9,7 +9,7 @@ declare module 'cognitive-3d-analytics/lib' {
   }
 
   interface C3DGaze {
-    recordGaze(position: number[], rotation: number[], gaze: number[]): void;
+    recordGaze(pos: number[], rot: number[], gaze?: number[], objectId?: string): void;
   }
 
   interface C3DFPSTracker {
@@ -23,11 +23,15 @@ declare module 'cognitive-3d-analytics/lib' {
   }
 
   class C3DAnalytics {
-    constructor(options: { config: C3DConfig });
+    constructor(settings: { config: C3DConfig });
     gaze: C3DGaze;
     sensor: C3DSensor;
     fpsTracker: C3DFPSTracker;
-    setDeviceProperty(key: string, value: string): void;
+    userId: string; // Direct property assignment as per documentation
+    setUserName(name: string): void;
+    setUserProperty(key: string, value: string | number | boolean): void;
+    setDeviceName(name: string): void;
+    setDeviceProperty(key: string, value: string | number | boolean): void;
     setScene(sceneName: string): void;
     startSession(xrSession?: Partial<XRSession>): Promise<boolean>;
     endSession(): Promise<void>;
@@ -39,8 +43,8 @@ declare module 'cognitive-3d-analytics/lib' {
   export default C3DAnalytics;
 }
 
-declare module 'cognitive-3d-analytics/adapters/threejs' {
-  import C3DAnalytics from 'cognitive-3d-analytics/lib';
+declare module '@cognitive3d/analytics/adapters/threejs' {
+  import C3DAnalytics from '@cognitive3d/analytics';
   import { Vector3, Quaternion, Camera } from 'three';
 
   class C3DThreeAdapter {
