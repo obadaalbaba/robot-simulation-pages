@@ -8,14 +8,22 @@ export class UserInputsGUI {
     private lengthFolder: dat.GUI;
     private orientationsFolder: dat.GUI;
     private exportFolder: dat.GUI;
+    private analyticsFolder: dat.GUI;
 
-    constructor(private userInputs: UserInputs, private exportFunction?: () => void, private transformationFunction?: () => void) {
+    constructor(
+        private userInputs: UserInputs, 
+        private exportFunction?: () => void, 
+        private transformationFunction?: () => void,
+        private startAnalyticsFunction?: () => Promise<void>,
+        private stopAnalyticsFunction?: () => Promise<void>
+    ) {
         this.gui = new dat.GUI();
         
         this.anglesFolder = this.gui.addFolder('Angles');
         this.lengthFolder = this.gui.addFolder('Lengths');
         this.orientationsFolder = this.gui.addFolder('Orientations');
         this.exportFolder = this.gui.addFolder('Export');
+        this.analyticsFolder = this.gui.addFolder('Analytics');
         
         this.setupGUI();
     }
@@ -25,6 +33,7 @@ export class UserInputsGUI {
         this.setupLengthsFolder();
         this.setupOrientationsFolder();
         this.setupExportFolder();
+        this.setupAnalyticsFolder();
     }
 
     private setupAnglesFolder(): void {
@@ -99,6 +108,47 @@ export class UserInputsGUI {
         }
         
         this.exportFolder.open();
+    }
+
+    private setupAnalyticsFolder(): void {
+        // Create an object for analytics actions
+        const analyticsActions = {
+            startAnalytics: async () => {
+                if (this.startAnalyticsFunction) {
+                    try {
+                        await this.startAnalyticsFunction();
+                        console.log('✅ Analytics started from GUI');
+                    } catch (error) {
+                        console.error('❌ Failed to start analytics:', error);
+                    }
+                } else {
+                    console.warn('Start analytics function not available');
+                }
+            },
+            stopAnalytics: async () => {
+                if (this.stopAnalyticsFunction) {
+                    try {
+                        await this.stopAnalyticsFunction();
+                        console.log('✅ Analytics stopped from GUI');
+                    } catch (error) {
+                        console.error('❌ Failed to stop analytics:', error);
+                    }
+                } else {
+                    console.warn('Stop analytics function not available');
+                }
+            }
+        };
+
+        // Add analytics control buttons
+        if (this.startAnalyticsFunction) {
+            this.analyticsFolder.add(analyticsActions, 'startAnalytics').name('Start C3D Analytics');
+        }
+        
+        if (this.stopAnalyticsFunction) {
+            this.analyticsFolder.add(analyticsActions, 'stopAnalytics').name('Stop C3D Analytics');
+        }
+        
+        this.analyticsFolder.open();
     }
 
     public destroy(): void {

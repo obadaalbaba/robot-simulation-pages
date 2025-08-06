@@ -18,7 +18,30 @@ export interface FPSMetrics {
     '1pl': number;
 }
 
+interface GazeData {
+    position: [number, number, number];
+    rotation: [number, number, number, number];
+    direction: [number, number, number];
+}
+
 export class AnalyticsMonitor {
+    // Constants
+    private static readonly GAZE_RECORDING_INTERVAL_MS = 100; // 10Hz as per Step 7 documentation
+    private static readonly FPS_DISPLAY_TOP_OFFSET = 10;
+    private static readonly FPS_DISPLAY_LEFT_OFFSET = 10;
+    private static readonly FPS_DISPLAY_PADDING = 8;
+    private static readonly FPS_DISPLAY_BORDER_RADIUS = 4;
+    private static readonly FPS_DISPLAY_FONT_SIZE = 12;
+    private static readonly FPS_DISPLAY_Z_INDEX = 10000;
+    private static readonly APP_VERSION = "1.0.0";
+    private static readonly C3D_VERSION = "0.1";
+    private static readonly ENGINE_NAME = "threejs";
+    
+    // Default values for invalid credentials
+    private static readonly DEFAULT_API_KEY_PLACEHOLDER = 'your_api_key_here';
+    private static readonly TEST_API_KEY_PLACEHOLDER = 'ASDF1234ASDF';
+
+    // Instance properties
     private c3d: C3DAnalytics;
     private isMonitoring: boolean = false;
     private fpsDisplay: HTMLElement = document.createElement('div');
@@ -26,20 +49,17 @@ export class AnalyticsMonitor {
     private camera?: THREE.OrthographicCamera;
     private gazeTrackingEnabled: boolean = false;
     private lastGazeTime: number = 0;
-    private gazeRecordingInterval: number = 100; // Record gaze every 100ms (10Hz as per Step 7 documentation)
     private sceneName?: string;
-    private sessionTimeout?: number;
-    private sessionDurationMs: number = 2 * 60 * 1000; // 2 minutes in milliseconds
 
     constructor() {
         this.c3d = new C3DAnalytics(mySettings);
-        this.setupBasicUserMetadata();
         this.sceneName = mySettings.config.allSceneData[0].sceneName;
+        this.setupBasicUserMetadata();
         this.createFPSDisplay();
     }
 
     // =============================================================================
-    // PUBLIC METHODS
+    // PUBLIC API
     // =============================================================================
 
     public hasValidCredentials(): boolean {
@@ -47,8 +67,8 @@ export class AnalyticsMonitor {
         const sceneData = settingsConfig.allSceneData[0];
         
         return !!(settingsConfig.APIKey && 
-                 settingsConfig.APIKey !== 'your_api_key_here' && 
-                 settingsConfig.APIKey !== 'ASDF1234ASDF' &&
+                 settingsConfig.APIKey !== AnalyticsMonitor.DEFAULT_API_KEY_PLACEHOLDER && 
+                 settingsConfig.APIKey !== AnalyticsMonitor.TEST_API_KEY_PLACEHOLDER &&
                  sceneData && 
                  sceneData.sceneName && 
                  sceneData.sceneId && 
@@ -58,84 +78,35 @@ export class AnalyticsMonitor {
     public async start(camera?: THREE.OrthographicCamera): Promise<void> {
         if (this.isMonitoring) return;
 
-        // Store camera reference for gaze tracking
         this.camera = camera;
-
-        // Start FPS monitoring
-        if (this.c3d.fpsTracker) {
-            this.c3d.fpsTracker.start((metrics) => {
-                this.updateFPSDisplay(metrics);
-            });
-            console.log('✅ FPS monitoring started');
-        } else {
-            console.error('❌ FPS tracker not available');
-        }
-
-        // Step 6: Start a Session (following documentation exactly)
-        try {
-            if (this.hasValidCredentials() && this.sceneName) {
-                // Step 6.1: Choose which scene is currently active
-                this.c3d.setScene(this.sceneName);
-                
-                // Step 6.2: Add these 4 required property names to the session
-                this.setupRequiredSessionProperties();
-                
-                // Step 6.3: Start the session
-                const mockXRSession = this.createMockXRSession();
-                await this.c3d.startSession(mockXRSession);
-                
-                if (camera) {
-                    this.gazeTrackingEnabled = true;
-                    console.log('✅ C3D Analytics session started following Step 6 (gaze tracking enabled)');
-                } else {
-                    console.log('✅ C3D Analytics session started following Step 6 (no gaze tracking)');
-                }
-                
-                // Schedule automatic session end after 2 minutes
-                this.scheduleSessionEnd();
-            } else {
-                console.warn('⚠️ Starting FPS monitor without C3D Analytics (missing/invalid credentials or scene)');
-                console.warn('⚠️ Please check your settings.js file for valid API key and scene data');
-            }
-        } catch (error) {
-            console.warn('⚠️ C3D session start failed:', error);
-        }
-
+        this.startFPSMonitoring();
+        await this.startAnalyticsSession();
         this.isMonitoring = true;
     }
 
+    public async stop(): Promise<void> {
+        if (!this.isMonitoring) return;
+
+        await this.endSession();
+        this.stopFPSMonitoring();
+        this.isMonitoring = false;
+    }
+
+    public isSessionActive(): boolean {
+        return this.isMonitoring && this.c3d.isSessionActive();
+    }
+
     public recordGaze(): void {
-        // Throttle gaze recording to avoid API spam (10Hz as per documentation)
-        const now = Date.now();
-        if (now - this.lastGazeTime < this.gazeRecordingInterval) {
-            return; // Skip this frame
+        if (!this.shouldRecordGaze()) {
+            return;
         }
         
-        // Step 7: Record User Gaze using direct C3D API
-        if (this.gazeTrackingEnabled && this.camera) {
-            try {
-                // Extract camera position and rotation for gaze recording
-                const pos = this.camera.position.toArray() as [number, number, number];
-                const rot = this.camera.quaternion.toArray() as [number, number, number, number];
-                
-                // Calculate gaze direction (camera forward direction)
-                const gazeDirection = new THREE.Vector3(0, 0, -1); // Forward in camera space
-                gazeDirection.applyQuaternion(this.camera.quaternion);
-                const gaze = gazeDirection.toArray() as [number, number, number];
-                
-                // Record gaze following Step 7 documentation
-                this.c3d.gaze.recordGaze(pos, rot, gaze);
-                
-                this.lastGazeTime = now;
-            } catch (error) {
-                // Handle authentication or network errors gracefully
-                if (error instanceof Error && error.message.includes('401')) {
-                    console.warn('⚠️ Gaze tracking authentication failed - check your Cognitive3D API credentials');
-                    this.gazeTrackingEnabled = false; // Disable to prevent spam
-                } else {
-                    console.warn('⚠️ Gaze tracking error:', error);
-                }
-            }
+        try {
+            const gazeData = this.calculateGazeData();
+            this.c3d.gaze.recordGaze(gazeData.position, gazeData.rotation, gazeData.direction);
+            this.lastGazeTime = Date.now();
+        } catch (error) {
+            this.handleGazeTrackingError(error);
         }
     }
 
@@ -144,7 +115,121 @@ export class AnalyticsMonitor {
     }
 
     // =============================================================================
-    // PRIVATE METHODS - Initialization & Setup
+    // PRIVATE METHODS - Analytics Session Management
+    // =============================================================================
+
+    private startFPSMonitoring(): void {
+        if (this.c3d.fpsTracker) {
+            this.c3d.fpsTracker.start((metrics) => {
+                this.updateFPSDisplay(metrics);
+            });
+            console.log('✅ FPS monitoring started');
+        } else {
+            console.error('❌ FPS tracker not available');
+        }
+    }
+
+    private stopFPSMonitoring(): void {
+        if (this.c3d.fpsTracker) {
+            this.c3d.fpsTracker.stop();
+            console.log('✅ FPS monitoring stopped');
+        }
+        
+        // Hide FPS display
+        if (this.fpsDisplay && this.fpsDisplay.parentNode) {
+            this.fpsDisplay.style.display = 'none';
+        }
+    }
+
+    private async startAnalyticsSession(): Promise<void> {
+        // Step 6: Start a Session (following documentation exactly)
+        try {
+            if (this.hasValidCredentials() && this.sceneName) {
+                await this.initializeC3DSession();
+                this.enableGazeTrackingIfCameraAvailable();
+                // Note: No automatic session scheduling - user controls via GUI
+            } else {
+                this.logInvalidCredentialsWarning();
+            }
+        } catch (error) {
+            console.warn('⚠️ C3D session start failed:', error);
+        }
+        
+        // Show FPS display when starting
+        if (this.fpsDisplay) {
+            this.fpsDisplay.style.display = 'block';
+        }
+    }
+
+    private async initializeC3DSession(): Promise<void> {
+        // Step 6.1: Choose which scene is currently active
+        this.c3d.setScene(this.sceneName!);
+        
+        // Step 6.2: Add these 4 required property names to the session
+        this.setupRequiredSessionProperties();
+        
+        // Step 6.3: Start the session
+        const mockXRSession = this.createMockXRSession();
+        await this.c3d.startSession(mockXRSession);
+    }
+
+    private enableGazeTrackingIfCameraAvailable(): void {
+        if (this.camera) {
+            this.gazeTrackingEnabled = true;
+            console.log('✅ C3D Analytics session started following Step 6 (gaze tracking enabled)');
+        } else {
+            console.log('✅ C3D Analytics session started following Step 6 (no gaze tracking)');
+        }
+    }
+
+    private logInvalidCredentialsWarning(): void {
+        console.warn('⚠️ Starting FPS monitor without C3D Analytics (missing/invalid credentials or scene)');
+        console.warn('⚠️ Please check your settings.js file for valid API key and scene data');
+    }
+
+    // =============================================================================
+    // PRIVATE METHODS - Gaze Tracking
+    // =============================================================================
+
+    private shouldRecordGaze(): boolean {
+        // Throttle gaze recording to avoid API spam (10Hz as per documentation)
+        const now = Date.now();
+        const timeSinceLastGaze = now - this.lastGazeTime;
+        
+        return this.gazeTrackingEnabled && 
+               !!this.camera && 
+               timeSinceLastGaze >= AnalyticsMonitor.GAZE_RECORDING_INTERVAL_MS;
+    }
+
+    private calculateGazeData(): GazeData {
+        if (!this.camera) {
+            throw new Error('Camera not available for gaze calculation');
+        }
+
+        // Extract camera position and rotation for gaze recording
+        const position = this.camera.position.toArray() as [number, number, number];
+        const rotation = this.camera.quaternion.toArray() as [number, number, number, number];
+        
+        // Calculate gaze direction (camera forward direction)
+        const gazeDirection = new THREE.Vector3(0, 0, -1); // Forward in camera space
+        gazeDirection.applyQuaternion(this.camera.quaternion);
+        const direction = gazeDirection.toArray() as [number, number, number];
+        
+        return { position, rotation, direction };
+    }
+
+    private handleGazeTrackingError(error: unknown): void {
+        // Handle authentication or network errors gracefully
+        if (error instanceof Error && error.message.includes('401')) {
+            console.warn('⚠️ Gaze tracking authentication failed - check your Cognitive3D API credentials');
+            this.gazeTrackingEnabled = false; // Disable to prevent spam
+        } else {
+            console.warn('⚠️ Gaze tracking error:', error);
+        }
+    }
+
+    // =============================================================================
+    // PRIVATE METHODS - User & Device Setup
     // =============================================================================
 
     private setupBasicUserMetadata(): void {
@@ -158,13 +243,13 @@ export class AnalyticsMonitor {
         }
         
         this.c3d.setDeviceProperty("AppName", "Robot_Simulation");
-        this.c3d.setDeviceProperty("AppVersion", "1.0.0");
+        this.c3d.setDeviceProperty("AppVersion", AnalyticsMonitor.APP_VERSION);
     }
 
     private setupRequiredSessionProperties(): void {
-        this.c3d.setUserProperty("c3d.version", "0.1");
-        this.c3d.setUserProperty("c3d.app.version", "0.1");
-        this.c3d.setUserProperty("c3d.app.engine", "threejs");
+        this.c3d.setUserProperty("c3d.version", AnalyticsMonitor.C3D_VERSION);
+        this.c3d.setUserProperty("c3d.app.version", AnalyticsMonitor.C3D_VERSION);
+        this.c3d.setUserProperty("c3d.app.engine", AnalyticsMonitor.ENGINE_NAME);
         this.c3d.setUserProperty("c3d.deviceid", this.generateDeviceId());
     }
 
@@ -182,24 +267,28 @@ export class AnalyticsMonitor {
 
     private createFPSDisplay(): void {
         this.fpsDisplay.id = 'fps-monitor';
-        this.fpsDisplay.style.cssText = `
+        this.fpsDisplay.style.cssText = this.getFPSDisplayStyles();
+        this.fpsDisplay.textContent = 'Click on the "Start Analytics" button to start the analytics session';
+        document.body.appendChild(this.fpsDisplay);
+    }
+
+    private getFPSDisplayStyles(): string {
+        return `
             position: fixed;
-            top: 10px;
-            left: 10px;
+            top: ${AnalyticsMonitor.FPS_DISPLAY_TOP_OFFSET}px;
+            left: ${AnalyticsMonitor.FPS_DISPLAY_LEFT_OFFSET}px;
             background: rgba(0, 0, 0, 0.8);
             color: #00ff00;
-            padding: 8px 12px;
-            border-radius: 4px;
+            padding: ${AnalyticsMonitor.FPS_DISPLAY_PADDING}px 12px;
+            border-radius: ${AnalyticsMonitor.FPS_DISPLAY_BORDER_RADIUS}px;
             font-family: 'Courier New', monospace;
-            font-size: 12px;
+            font-size: ${AnalyticsMonitor.FPS_DISPLAY_FONT_SIZE}px;
             font-weight: bold;
-            z-index: 10000;
+            z-index: ${AnalyticsMonitor.FPS_DISPLAY_Z_INDEX};
             user-select: none;
             pointer-events: none;
             border: 1px solid rgba(0, 255, 0, 0.3);
         `;
-        this.fpsDisplay.textContent = 'FPS: Initializing...';
-        document.body.appendChild(this.fpsDisplay);
     }
 
     private ensureFPSDisplay(): HTMLElement {
@@ -223,20 +312,6 @@ export class AnalyticsMonitor {
     // PRIVATE METHODS - Session Management
     // =============================================================================
 
-    private scheduleSessionEnd(): void {
-        // Clear any existing timeout
-        if (this.sessionTimeout) {
-            clearTimeout(this.sessionTimeout);
-        }
-        
-        // Schedule session end after configured duration
-        this.sessionTimeout = setTimeout(() => {
-            this.endSession();
-        }, this.sessionDurationMs);
-        
-        console.log(`⏱️ C3D Analytics session will automatically end in ${this.sessionDurationMs / 1000} seconds`);
-    }
-
     private async endSession(): Promise<void> {
         try {
             if (this.c3d.isSessionActive()) {
@@ -245,12 +320,6 @@ export class AnalyticsMonitor {
                 
                 // Disable gaze tracking
                 this.gazeTrackingEnabled = false;
-                
-                // Clear the timeout
-                if (this.sessionTimeout) {
-                    clearTimeout(this.sessionTimeout);
-                    this.sessionTimeout = undefined;
-                }
             } else {
                 console.log('ℹ️ C3D Analytics session was not active');
             }

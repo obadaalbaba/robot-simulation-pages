@@ -9,15 +9,31 @@ const analyticsMonitor = new AnalyticsMonitor();
 const sceneManager = new SceneManager();
 const camera = sceneManager.getCamera();
 
-if (analyticsMonitor.hasValidCredentials()) {
-    analyticsMonitor.start(camera);
-} else {
-    analyticsMonitor.start();
-}
+// Analytics will be controlled manually via GUI buttons
 
 const sceneExporter = new SceneExporter();
 const robotBuilder = new RobotBuilder(sceneManager.getWorldReferenceFrame());
-const inputManager = new UserInputManager(undefined, ()=>sceneExporter.exportForCognitive3D(sceneManager.getScene()), () => robotBuilder.calculateAndLogTransformations());
+
+// Create analytics control functions
+const startAnalytics = async () => {
+    if (analyticsMonitor.hasValidCredentials()) {
+        await analyticsMonitor.start(camera);
+    } else {
+        await analyticsMonitor.start();
+    }
+};
+
+const stopAnalytics = async () => {
+    await analyticsMonitor.stop();
+};
+
+const inputManager = new UserInputManager(
+    undefined, 
+    () => sceneExporter.exportForCognitive3D(sceneManager.getScene()), 
+    () => robotBuilder.calculateAndLogTransformations(),
+    startAnalytics,
+    stopAnalytics
+);
 const userInputs = inputManager.getUserInputs();
 robotBuilder.buildRobot(userInputs);
 
@@ -32,11 +48,11 @@ inputManager.onJointUpdate((params) => {
 inputManager.startMonitoring(MONITOR_INTERVAL_SECONDS);
 
 sceneManager.startAnimation(() => {
-    if (analyticsMonitor.hasValidCredentials() && analyticsMonitor.isGazeTrackingEnabled()) {
+    if (analyticsMonitor.isSessionActive() && analyticsMonitor.isGazeTrackingEnabled()) {
         analyticsMonitor.recordGaze();
     }
 });
 
 // Make analytics monitor available globally for debugging
-// Session will automatically end after 2 minutes
+// Session is now controlled manually via GUI buttons
 (globalThis as any).analyticsMonitor = analyticsMonitor;
