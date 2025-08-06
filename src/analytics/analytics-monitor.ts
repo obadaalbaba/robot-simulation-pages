@@ -53,7 +53,8 @@ export class AnalyticsMonitor {
 
     constructor() {
         this.c3d = new C3DAnalytics(mySettings);
-        this.sceneName = mySettings.config.allSceneData[0].sceneName;
+        const firstScene = mySettings.config.allSceneData?.[0];
+        this.sceneName = firstScene?.sceneName;
         this.setupBasicUserMetadata();
         this.createFPSDisplay();
     }
@@ -64,7 +65,7 @@ export class AnalyticsMonitor {
 
     public hasValidCredentials(): boolean {
         const settingsConfig = mySettings.config;
-        const sceneData = settingsConfig.allSceneData[0];
+        const sceneData = settingsConfig.allSceneData?.[0];
         
         return !!(settingsConfig.APIKey && 
                  settingsConfig.APIKey !== AnalyticsMonitor.DEFAULT_API_KEY_PLACEHOLDER && 
@@ -162,8 +163,11 @@ export class AnalyticsMonitor {
     }
 
     private async initializeC3DSession(): Promise<void> {
+        if (!this.sceneName) {
+            throw new Error('Scene name is required to initialize C3D session');
+        }
         // Step 6.1: Choose which scene is currently active
-        this.c3d.setScene(this.sceneName!);
+        this.c3d.setScene(this.sceneName);
         
         // Step 6.2: Add these 4 required property names to the session
         this.setupRequiredSessionProperties();
