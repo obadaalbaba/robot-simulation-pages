@@ -4,39 +4,36 @@ import { RobotBuilder } from './robot';
 import { AnalyticsMonitor } from './analytics';
 import { MONITOR_INTERVAL_SECONDS } from './constants';
 
-const requiredEnvVars = [
-    'VITE_C3D_API_KEY',
-    'VITE_C3D_SCENE_NAME',
-    'VITE_C3D_SCENE_ID',
-    'VITE_C3D_VERSION'
-];
-const missingVars = requiredEnvVars.filter(varName => !import.meta.env[varName]);
-
-if (missingVars.length > 0) {
-    console.error('Missing required environment variables:', missingVars);
-}
-
-const hasValidCredentials = missingVars.length === 0 && 
-    import.meta.env.VITE_C3D_API_KEY !== 'your_api_key_here';
-const analyticsMonitor = new AnalyticsMonitor({
-    apiKey: import.meta.env.VITE_C3D_API_KEY,
-    sceneName: import.meta.env.VITE_C3D_SCENE_NAME,
-    sceneId: import.meta.env.VITE_C3D_SCENE_ID,
-    versionNumber: import.meta.env.VITE_C3D_VERSION
-}); 
+// Initialize analytics monitor with settings from analytics-monitor.ts
+const analyticsMonitor = new AnalyticsMonitor(); 
 const sceneManager = new SceneManager();
 const camera = sceneManager.getCamera();
 
-if (hasValidCredentials) {
-    analyticsMonitor.start(camera);
-} else {
-    console.warn('Starting FPS monitor without gaze tracking (missing/invalid credentials)');
-    analyticsMonitor.start();
-}
+// Analytics will be controlled manually via GUI buttons
 
 const sceneExporter = new SceneExporter();
 const robotBuilder = new RobotBuilder(sceneManager.getWorldReferenceFrame());
-const inputManager = new UserInputManager(undefined, ()=>sceneExporter.exportForCognitive3D(sceneManager.getScene()), () => robotBuilder.calculateAndLogTransformations());
+
+// Create analytics control functions
+const startAnalytics = async () => {
+    if (analyticsMonitor.hasValidCredentials()) {
+        await analyticsMonitor.start(camera);
+    } else {
+        await analyticsMonitor.start();
+    }
+};
+
+const stopAnalytics = async () => {
+    await analyticsMonitor.stop();
+};
+
+const inputManager = new UserInputManager(
+    undefined, 
+    () => sceneExporter.exportForCognitive3D(sceneManager.getScene()), 
+    () => robotBuilder.calculateAndLogTransformations(),
+    startAnalytics,
+    stopAnalytics
+);
 const userInputs = inputManager.getUserInputs();
 robotBuilder.buildRobot(userInputs);
 
@@ -51,7 +48,11 @@ inputManager.onJointUpdate((params) => {
 inputManager.startMonitoring(MONITOR_INTERVAL_SECONDS);
 
 sceneManager.startAnimation(() => {
-    if (hasValidCredentials && analyticsMonitor.isGazeTrackingEnabled()) {
+    if (analyticsMonitor.isSessionActive() && analyticsMonitor.isGazeTrackingEnabled()) {
         analyticsMonitor.recordGaze();
     }
 });
+
+// Make analytics monitor available globally for debugging
+// Session is now controlled manually via GUI buttons
+(globalThis as any).analyticsMonitor = analyticsMonitor;
