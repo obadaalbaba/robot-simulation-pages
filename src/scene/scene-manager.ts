@@ -13,10 +13,13 @@ import { defaultSceneConfig } from './config';
 export class SceneManager {
     private components: SceneComponents;
     private config: SceneConfig;
+    private resizeHandler: () => void;
 
     constructor(config?: Partial<SceneConfig>) {
         this.config = { ...defaultSceneConfig, ...config };
         this.components = this.initializeScene();
+        this.resizeHandler = this.handleResize.bind(this);
+        this.setupResizeListener();
     }
 
     private initializeScene(): SceneComponents {
@@ -99,7 +102,35 @@ export class SceneManager {
         
         animate();
     }
+
+    private setupResizeListener(): void {
+        window.addEventListener('resize', this.resizeHandler);
+    }
+
+    private handleResize(): void {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const aspect = width / height;
+
+        // Update renderer size
+        this.components.renderer.setSize(width, height);
+
+        // Update camera for orthographic projection
+        const camera = this.components.camera;
+        const frustumSize = this.config.camera.frustumSize;
+        
+        camera.left = -frustumSize * aspect / 2;
+        camera.right = frustumSize * aspect / 2;
+        camera.top = frustumSize / 2;
+        camera.bottom = -frustumSize / 2;
+        
+        camera.updateProjectionMatrix();
+    }
+
     public dispose(): void {
+        // Remove resize event listener
+        window.removeEventListener('resize', this.resizeHandler);
+        
         // Clean up renderer
         this.components.renderer.dispose();
         
