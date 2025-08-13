@@ -1,5 +1,8 @@
 # Robot Simulation
 
+Link: https://obadaalbaba.github.io/r
+ obot-simulation-pages/
+
 ## Summary
 This TypeScript-based application renders a customizable 4-link robotic arm with 3 rotary joints. The goal of this project is to create a comprehensive tool that allows users to visualize different robot configurations, perform forward kinematics calculations in a 3D environment, and monitor performance metrics through integrated analytics. The application combines robot simulation with real-time performance tracking and user behavior analytics.
 
