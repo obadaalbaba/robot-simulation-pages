@@ -241,12 +241,12 @@ describe('RobotBuilder', () => {
     });
 
     it('should respect the number of joints defined in RobotDefinition', () => {
-      jest.spyOn(RobotDefinition, 'getNumJoints').mockReturnValue(3);
+      jest.spyOn(RobotDefinition, 'getNumJoints').mockReturnValue(6);
 
       robotBuilder.updateJointAngles(mockUserInputs);
 
-      // Should only update first 3 joints
-      expect(mockAxesHelper.rotation.set).toHaveBeenCalledTimes(3);
+      // Should update all 6 joints
+      expect(mockAxesHelper.rotation.set).toHaveBeenCalledTimes(6);
     });
   });
 

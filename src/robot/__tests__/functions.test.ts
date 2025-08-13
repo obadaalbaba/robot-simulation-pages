@@ -34,7 +34,7 @@ describe('Robot Functions', () => {
         rotateX: jest.fn(),
         rotateY: jest.fn()
       };
-      (THREE.AxesHelper as jest.Mock).mockReturnValue(mockAxesHelper);
+      (THREE.AxesHelper as unknown as jest.Mock).mockReturnValue(mockAxesHelper);
 
       const result = createLinkOrigin('y', mockParent);
       
@@ -49,7 +49,7 @@ describe('Robot Functions', () => {
         rotateX: jest.fn(),
         rotateY: jest.fn()
       };
-      (THREE.AxesHelper as jest.Mock).mockReturnValue(mockAxesHelper);
+      (THREE.AxesHelper as unknown as jest.Mock).mockReturnValue(mockAxesHelper);
 
       createLinkOrigin('x', mockParent);
 
@@ -64,7 +64,7 @@ describe('Robot Functions', () => {
         rotateX: jest.fn(),
         rotateY: jest.fn()
       };
-      (THREE.AxesHelper as jest.Mock).mockReturnValue(mockAxesHelper);
+      (THREE.AxesHelper as unknown as jest.Mock).mockReturnValue(mockAxesHelper);
 
       createLinkOrigin('y', mockParent);
 
@@ -79,7 +79,7 @@ describe('Robot Functions', () => {
         rotateX: jest.fn(),
         rotateY: jest.fn()
       };
-      (THREE.AxesHelper as jest.Mock).mockReturnValue(mockAxesHelper);
+      (THREE.AxesHelper as unknown as jest.Mock).mockReturnValue(mockAxesHelper);
 
       createLinkOrigin('z', mockParent);
 
@@ -94,7 +94,7 @@ describe('Robot Functions', () => {
         rotateX: jest.fn(),
         rotateY: jest.fn()
       };
-      (THREE.AxesHelper as jest.Mock).mockReturnValue(mockAxesHelper);
+      (THREE.AxesHelper as unknown as jest.Mock).mockReturnValue(mockAxesHelper);
 
       createLinkOrigin('y', mockParent);
 
@@ -114,9 +114,9 @@ describe('Robot Functions', () => {
         position: { y: 0 }
       } as THREE.Mesh;
 
-      (THREE.CylinderGeometry as jest.Mock).mockReturnValue(mockGeometry);
+      (THREE.CylinderGeometry as unknown as jest.Mock).mockReturnValue(mockGeometry);
       (THREE.MeshBasicMaterial as jest.Mock).mockReturnValue(mockMaterial);
-      (THREE.Mesh as jest.Mock).mockReturnValue(mockMesh);
+      (THREE.Mesh as unknown as jest.Mock).mockReturnValue(mockMesh);
     });
 
     it('should create a cylinder with correct geometry parameters', () => {
@@ -170,7 +170,7 @@ describe('Robot Functions', () => {
         material: { linewidth: 0 },
         position: { x: 0, y: 0, z: 0 }
       };
-      (THREE.AxesHelper as jest.Mock).mockReturnValue(mockAxesHelper);
+      (THREE.AxesHelper as unknown as jest.Mock).mockReturnValue(mockAxesHelper);
 
       createLinkEndFrame(10, mockParent);
 
@@ -182,7 +182,7 @@ describe('Robot Functions', () => {
         material: { linewidth: 0 },
         position: { y: 0 }
       };
-      (THREE.AxesHelper as jest.Mock).mockReturnValue(mockAxesHelper);
+      (THREE.AxesHelper as unknown as jest.Mock).mockReturnValue(mockAxesHelper);
 
       const length = 15;
       createLinkEndFrame(length, mockParent);
@@ -195,7 +195,7 @@ describe('Robot Functions', () => {
         material: { linewidth: 0 },
         position: { y: 0 }
       };
-      (THREE.AxesHelper as jest.Mock).mockReturnValue(mockAxesHelper);
+      (THREE.AxesHelper as unknown as jest.Mock).mockReturnValue(mockAxesHelper);
 
       createLinkEndFrame(10, mockParent);
 
@@ -221,9 +221,9 @@ describe('Robot Functions', () => {
         rotation: { x: 0, y: 0, z: 0 }
       } as THREE.Mesh;
 
-      (THREE.CylinderGeometry as jest.Mock).mockReturnValue(mockGeometry);
+      (THREE.CylinderGeometry as unknown as jest.Mock).mockReturnValue(mockGeometry);
       (THREE.MeshBasicMaterial as jest.Mock).mockReturnValue(mockMaterial);
-      (THREE.Mesh as jest.Mock).mockReturnValue(mockMesh);
+      (THREE.Mesh as unknown as jest.Mock).mockReturnValue(mockMesh);
     });
 
     it('should create a cylinder with correct geometry parameters', () => {
@@ -281,7 +281,7 @@ describe('Robot Functions', () => {
         rotateY: jest.fn(),
         rotateZ: jest.fn()
       };
-      (THREE.AxesHelper as jest.Mock).mockReturnValue(mockAxesHelper);
+      (THREE.AxesHelper as unknown as jest.Mock).mockReturnValue(mockAxesHelper);
     });
 
     it('should create an AxesHelper with correct size', () => {
@@ -360,7 +360,7 @@ describe('Robot Functions', () => {
 
     it('should return the created AxesHelper', () => {
       const mockAxesHelper = { material: { linewidth: 0 } };
-      (THREE.AxesHelper as jest.Mock).mockReturnValue(mockAxesHelper);
+      (THREE.AxesHelper as unknown as jest.Mock).mockReturnValue(mockAxesHelper);
 
       const result = createTCPframe(mockParent);
 
@@ -373,7 +373,7 @@ describe('Robot Functions', () => {
       const mockMesh = {
         position: { x: 0, y: 0, z: 0 }
       };
-      (THREE.Mesh as jest.Mock).mockReturnValue(mockMesh);
+      (THREE.Mesh as unknown as jest.Mock).mockReturnValue(mockMesh);
 
       expect(() => createLink(0, mockParent)).not.toThrow();
     });
@@ -385,7 +385,7 @@ describe('Robot Functions', () => {
         rotateY: jest.fn(),
         rotateZ: jest.fn()
       };
-      (THREE.AxesHelper as jest.Mock).mockReturnValue(mockAxesHelper);
+      (THREE.AxesHelper as unknown as jest.Mock).mockReturnValue(mockAxesHelper);
 
       expect(() => createJointFrame(-90, 'x', mockParent)).not.toThrow();
     });
@@ -404,8 +404,8 @@ describe('Robot Functions', () => {
         rotation: { x: 0, y: 0, z: 0 }
       };
       
-      (THREE.AxesHelper as jest.Mock).mockReturnValue(mockAxesHelper);
-      (THREE.Mesh as jest.Mock).mockReturnValue(mockMesh);
+      (THREE.AxesHelper as unknown as jest.Mock).mockReturnValue(mockAxesHelper);
+      (THREE.Mesh as unknown as jest.Mock).mockReturnValue(mockMesh);
       
       axes.forEach(axis => {
         expect(() => createLinkOrigin(axis, mockParent)).not.toThrow();
