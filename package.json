@@ -1,24 +1,38 @@
 {
-  "name": "robot-simulation",
-  "version": "1.0.0",
-  "description": "This code renders a customaizable robotic arm. The goal of this project is to create a tool that allows the user to visualize different robot configurations and to be able to perform forward kinematics. ## How to Run the Code 1. git clone https://github.com/obadaalbaba/RobotVisualization.git or Download and extract the repository 2. Add the directory to an environment such as VSCode. 3. Right click on the .html file within VSCode and select \"Run with Live Server\" (you may need to install the \"live server\" extension). 4. Refresh the webpage as needed. 5. You can run the application on heroku as well: stay tuned ## The Code The code is seperated into multiple files: 1. index.html depends on six javascript (.js) files. 2. three.js is a library downloaded from the web. It does all the heavy lifting. 3. constants.js contains all the unchanging variables. 4. functions.js contains all the functions. 5. OrbitControls.js allows for rotation and navigation using the mouse. 6. dat.gui.min.js adds a box that allows the user to modify the robot's dimentions, angles and joint orientations. 7. main.js contains the code that executes all the actions. It depens on the three other javascript files. ## Initial Problem 1. Set up a 3D environment where the user can visualize a customizable robot.  2. Link 0 can be either parallel to the x, y, or z axis. The robot contains two rotary joints that can be oriented in multiple ways 3. The user should be able to modify the joint angles and the link lengthes. ## Libraries and Concepts Used The code uses the three.js library. This library is widely used for 3D animations and games. Some basic 3D geometry consepts were used as well. For example, a list of basic orientations was used to orient link 0:",
-  "main": "main.js",
+  "name": "robot-simulation-pages",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "gh-pages -d dist"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --ci --coverage --watchAll=false"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/obadaalbaba/robot-simulation.git"
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@types/dat.gui": "^0.7.13",
+    "@types/jest": "^30.0.0",
+    "@types/three": "^0.178.1",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "eslint": "^9.32.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
+    "ts-jest": "^29.4.1",
+    "typescript": "~5.8.3",
+    "vite": "^7.0.6"
   },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/obadaalbaba/robot-simulation/issues"
-  },
-  "homepage": "https://github.com/obadaalbaba/robot-simulation#readme",
   "dependencies": {
-    "gh-pages": "^3.2.3"
-  },
-  "devDependencies": {}
+    "@cognitive3d/analytics": "^2.1.4",
+    "dat.gui": "^0.7.9",
+    "three": "^0.178.0"
+  }
 }
