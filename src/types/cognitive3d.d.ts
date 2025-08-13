@@ -1,0 +1,71 @@
+declare module '@cognitive3d/analytics' {
+  interface C3DConfig {
+    APIKey: string;
+    allSceneData: Array<{
+      sceneName: string;
+      sceneId: string;
+      versionNumber: string;
+    }>;
+  }
+
+  interface C3DGaze {
+    recordGaze(pos: number[], rot: number[], gaze?: number[], objectId?: string): void;
+  }
+
+  interface C3DFPSTracker {
+    start(callback: (metrics: { avg: number; '1pl': number }) => void): void;
+    stop(): void;
+    lastDeltaTime: number;
+  }
+
+  interface C3DSensor {
+    recordSensor(sensorName: string, value: string | number | boolean): void;
+  }
+
+  class C3DAnalytics {
+    constructor(settings: { config: C3DConfig });
+    gaze: C3DGaze;
+    sensor: C3DSensor;
+    fpsTracker: C3DFPSTracker;
+    userId: string; // Direct property assignment as per documentation
+    setUserName(name: string): void;
+    setUserProperty(key: string, value: string | number | boolean): void;
+    setDeviceName(name: string): void;
+    setDeviceProperty(key: string, value: string | number | boolean): void;
+    setScene(sceneName: string): void;
+    startSession(xrSession?: Partial<XRSession>): Promise<boolean>;
+    endSession(): Promise<void>;
+    isSessionActive(): boolean;
+    getApiKey(): string;
+    getSceneId(): string;
+  }
+
+  export default C3DAnalytics;
+}
+
+declare module '@cognitive3d/analytics/adapters/threejs' {
+  import C3DAnalytics from '@cognitive3d/analytics';
+  import { Vector3, Quaternion, Camera } from 'three';
+
+  class C3DThreeAdapter {
+    constructor(c3dInstance: C3DAnalytics);
+    c3d: C3DAnalytics;
+    
+    /**
+     * Converts a THREE.Vector3 to a simple array [x, y, z]
+     */
+    fromVector3(vec3: Vector3): [number, number, number];
+    
+    /**
+     * Converts a THREE.Quaternion to a simple array [x, y, z, w]
+     */
+    fromQuaternion(quat: Quaternion): [number, number, number, number];
+    
+    /**
+     * Records gaze data from a THREE.js camera
+     */
+    recordGazeFromCamera(camera: Camera): void;
+  }
+
+  export default C3DThreeAdapter;
+} 
