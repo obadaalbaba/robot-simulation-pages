@@ -5,7 +5,7 @@ import { AnalyticsMonitor } from './analytics';
 import { MONITOR_INTERVAL_SECONDS } from './constants';
 
 // Initialize analytics monitor with settings from analytics-monitor.ts
-const analyticsMonitor = new AnalyticsMonitor(); 
+const analyticsMonitor = new AnalyticsMonitor();
 const sceneManager = new SceneManager();
 const camera = sceneManager.getCamera();
 

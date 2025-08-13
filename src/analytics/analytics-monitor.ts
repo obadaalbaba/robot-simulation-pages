@@ -239,7 +239,7 @@ export class AnalyticsMonitor {
 
     private setupBasicUserMetadata(): void {
         this.c3d.userId = this.generateUserId();
-        this.c3d.setUserName("Robot Simulation User");
+        this.c3d.setUserName("Robot-Simulation-User");
 
         const settingsConfig = mySettings.config;
 
